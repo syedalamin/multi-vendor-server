@@ -1,0 +1,18 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+/backup
+
+
+
+#! temporary start
+
+Wishlist
+Order
+OrderItem
+Invoice
+PromoCode
+Review 
+#! temporary end
