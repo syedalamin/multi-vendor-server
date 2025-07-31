@@ -6,6 +6,7 @@ import { CategoryRoutes } from "../modules/Category/category.routes";
 import { SubCategoryRoutes } from "../modules/SubCategory/sub.category.routes";
 import { ProductRoutes } from "../modules/Product/product.routes";
 import { CartRoutes } from "../modules/Cart/cart.routes";
+import { VendorRoutes } from "../modules/Vendor/vendor.routes";
 
 const router = express.Router();
 
@@ -21,6 +22,10 @@ const moduleRouters = [
   {
     path: "/admin",
     route: AdminRoutes,
+  },
+  {
+    path: "/vendor",
+    route: VendorRoutes,
   },
   {
     path: "/category",
