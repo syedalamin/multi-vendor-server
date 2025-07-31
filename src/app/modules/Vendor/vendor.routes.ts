@@ -23,5 +23,6 @@ router.patch(
   VendorControllers.updateByIdIntoDB
 );
 router.delete("/:id", auth(UserRole.ADMIN), VendorControllers.deleteByIdFromDB);
+router.delete("/soft/:id", auth(UserRole.ADMIN), VendorControllers.softDeleteByIdFromDB);
 
 export const VendorRoutes = router;

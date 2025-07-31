@@ -50,6 +50,16 @@ const deleteByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const softDeleteByIdFromDB = catchAsync(async (req, res) => {
+  const {id} = req.params
+  const result = await VendorServices.softDeleteByIdFromDB(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Vendor is deleted successfully",
+    data: result,
+  });
+});
 
 export const VendorControllers = {
 
@@ -57,4 +67,5 @@ export const VendorControllers = {
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
+  softDeleteByIdFromDB
 };

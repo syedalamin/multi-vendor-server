@@ -137,11 +137,54 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
   return result;
 };
 
-const deleteByIdFromDB = () => {};
+const deleteByIdFromDB = async () => {};
+
+const softDeleteByIdFromDB = async (id: string) => {
+  const isVendorExist = await prisma.vendor.findFirst({
+    where: {
+      id,
+    },
+  });
+  if (!isVendorExist) {
+    throw new ApiError(status.NOT_FOUND, "Vendor is not found");
+  }
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: { email: isVendorExist.email },
+  });
+
+  const isVendorBlocked = isVendorExist.isBlocked ? false : true;
+  const isUserBlocked =
+    isUserExist.status == UserStatus.ACTIVE
+      ? UserStatus.BLOCKED
+      : UserStatus.ACTIVE;
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.user.update({
+      where: { email: isVendorExist.email },
+      data: {
+        status: isUserBlocked,
+      },
+    });
+
+    const result = await prisma.vendor.update({
+      where: {
+        id: isVendorExist.id,
+      },
+      data: {
+        isBlocked: isVendorBlocked,
+      },
+    });
+
+    return result;
+  });
+
+  return result;
+};
 
 export const VendorServices = {
   getAllDataFromDB,
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
+  softDeleteByIdFromDB,
 };
