@@ -31,7 +31,9 @@ const getByIdFromDB = catchAsync(async (req, res) => {
   });
 });
 const updateByIdIntoDB = catchAsync(async (req, res) => {
-  const result = await VendorServices.updateByIdIntoDB();
+  const { id } = req.params;
+
+  const result = await VendorServices.updateByIdIntoDB(id, req);
 
   sendResponse(res, {
     statusCode: status.OK,
