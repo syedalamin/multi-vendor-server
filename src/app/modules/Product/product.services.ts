@@ -4,7 +4,7 @@ import { ICloudinaryUploadResponse } from "../../../interface/file";
 import prisma from "../../../utils/share/prisma";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
-import { generateSlug } from "../../../utils/slug/generateSlug";
+import { generateSku, generateSlug } from "../../../utils/slug/generateSlug";
 import { Prisma, Product, ProductStatus } from "@prisma/client";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { IProductFilterFields } from "./product.interface";
@@ -46,6 +46,17 @@ const createDataIntoDB = async (req: Request): Promise<Product> => {
   }
 
   productData.slug = generateSlug(productData.name);
+  // productData.sku
+
+  const productCount = await prisma.product.count({
+    where: {
+      subCategoryId: isSubCategoryIdExist.id,
+    },
+  });
+
+  productData.sku = generateSku(isSubCategoryIdExist.name, productCount)
+
+  // return productData;
 
   const result = await prisma.product.create({ data: productData });
   return result;
