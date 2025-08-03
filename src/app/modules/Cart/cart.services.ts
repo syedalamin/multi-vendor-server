@@ -212,7 +212,34 @@ const updateByIdIntoDB = async (user: JwtPayload, payload: Partial<Cart>) => {
 
   return result;
 };
-const deleteByIdFromDB = () => {};
+const deleteByIdFromDB = async(user: JwtPayload, id: string) => {
+
+  const userInfo = await prisma.user.findFirstOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  if (!userInfo) {
+    throw new ApiError(status.NOT_FOUND, "User is not found");
+  }
+
+  const cartInfo = await prisma.cart.delete({
+    where: {
+      id,
+      userId: userInfo.id,
+    },
+  });
+
+  return cartInfo;
+};
 
 export const CartServices = {
   createDataIntoDB,

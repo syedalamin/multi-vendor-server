@@ -27,6 +27,6 @@ router.patch(
   validateRequest(CartValidation.cartUpdateValidation),
   CartControllers.updateByIdIntoDB
 );
-router.delete("/:id", auth(UserRole.ADMIN), CartControllers.deleteByIdFromDB);
+router.delete("/:id", auth(UserRole.ADMIN, UserRole.CUSTOMER), CartControllers.deleteByIdFromDB);
 
 export const CartRoutes = router;

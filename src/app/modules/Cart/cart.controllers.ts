@@ -29,7 +29,7 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
 });
 const getByIdFromDB = catchAsync(async (req, res) => {
   const user = req.user;
-  const {id} = req.params
+  const { id } = req.params;
   const result = await CartServices.getByIdFromDB(user as JwtPayload, id);
 
   sendResponse(res, {
@@ -52,7 +52,9 @@ const updateByIdIntoDB = catchAsync(async (req, res) => {
   });
 });
 const deleteByIdFromDB = catchAsync(async (req, res) => {
-  const result = await CartServices.deleteByIdFromDB();
+  const user = req.user;
+  const { id } = req.params;
+  const result = await CartServices.deleteByIdFromDB(user as JwtPayload, id);
 
   sendResponse(res, {
     statusCode: status.OK,
