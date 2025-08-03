@@ -4,10 +4,12 @@ import sendResponse from "../../../utils/share/sendResponse";
 import { CartServices } from "./cart.services";
 import { JwtPayload } from "jsonwebtoken";
 
-
 const createDataIntoDB = catchAsync(async (req, res) => {
-  const user = req.user
-  const result = await CartServices.createDataIntoDB(user as JwtPayload , req.body);
+  const user = req.user;
+  const result = await CartServices.createDataIntoDB(
+    user as JwtPayload,
+    req.body
+  );
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -16,7 +18,8 @@ const createDataIntoDB = catchAsync(async (req, res) => {
   });
 });
 const getAllDataFromDB = catchAsync(async (req, res) => {
-  const result = await CartServices.getAllDataFromDB();
+  const user = req.user;
+  const result = await CartServices.getAllDataFromDB(user as JwtPayload);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -25,7 +28,9 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
   });
 });
 const getByIdFromDB = catchAsync(async (req, res) => {
-  const result = await CartServices.getByIdFromDB();
+  const user = req.user;
+  const {id} = req.params
+  const result = await CartServices.getByIdFromDB(user as JwtPayload, id);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -34,7 +39,11 @@ const getByIdFromDB = catchAsync(async (req, res) => {
   });
 });
 const updateByIdIntoDB = catchAsync(async (req, res) => {
-  const result = await CartServices.updateByIdIntoDB();
+  const user = req.user;
+  const result = await CartServices.updateByIdIntoDB(
+    user as JwtPayload,
+    req.body
+  );
 
   sendResponse(res, {
     statusCode: status.OK,

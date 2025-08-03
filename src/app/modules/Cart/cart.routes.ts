@@ -9,13 +9,24 @@ const router = express.Router();
 
 router.post(
   "/create",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
   validateRequest(CartValidation.cartCreateValidation),
   CartControllers.createDataIntoDB
 );
-router.get("/", auth(UserRole.ADMIN), CartControllers.getAllDataFromDB);
-router.get("/:id", auth(UserRole.ADMIN), CartControllers.getByIdFromDB);
-router.patch("/:id", auth(UserRole.ADMIN), CartControllers.updateByIdIntoDB);
+router.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
+  CartControllers.getAllDataFromDB
+);
+
+router.get("/:id", auth(UserRole.ADMIN, UserRole.CUSTOMER), CartControllers.getByIdFromDB);
+
+router.patch(
+  "/:id",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
+  validateRequest(CartValidation.cartUpdateValidation),
+  CartControllers.updateByIdIntoDB
+);
 router.delete("/:id", auth(UserRole.ADMIN), CartControllers.deleteByIdFromDB);
 
 export const CartRoutes = router;
