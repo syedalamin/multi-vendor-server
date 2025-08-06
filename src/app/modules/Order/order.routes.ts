@@ -21,9 +21,9 @@ router.get(
   OrderControllers.getByIdFromDB
 );
 router.patch(
-  "/:id",
+  "/status/:id",
   auth(UserRole.ADMIN, UserRole.CUSTOMER),
-  OrderControllers.updateByIdIntoDB
+  OrderControllers.updateStatusByIdIntoDB
 );
 router.delete(
   "/:id",

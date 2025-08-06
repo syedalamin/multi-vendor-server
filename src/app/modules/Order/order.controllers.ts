@@ -6,7 +6,11 @@ import { JwtPayload } from "jsonwebtoken";
 
 const createDataIntoDB = catchAsync(async (req, res) => {
   const user = req.user;
-  const result = await OrderServices.checkout(user as JwtPayload, req.body, "COD");
+  const result = await OrderServices.checkout(
+    user as JwtPayload,
+    req.body,
+    "COD"
+  );
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -25,7 +29,9 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
   });
 });
 const getByIdFromDB = catchAsync(async (req, res) => {
-  const result = await OrderServices.getByIdFromDB();
+  const user = req.user;
+  const {id }= req.params;
+  const result = await OrderServices.getByIdFromDB(user as JwtPayload, id);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -33,8 +39,9 @@ const getByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
-const updateByIdIntoDB = catchAsync(async (req, res) => {
-  const result = await OrderServices.updateByIdIntoDB();
+const updateStatusByIdIntoDB = catchAsync(async (req, res) => {
+    const {id }= req.params;
+  const result = await OrderServices.updateStatusByIdIntoDB(id, req.body);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -56,6 +63,6 @@ export const OrderControllers = {
   createDataIntoDB,
   getAllDataFromDB,
   getByIdFromDB,
-  updateByIdIntoDB,
+  updateStatusByIdIntoDB,
   deleteByIdFromDB,
 };
