@@ -28,7 +28,9 @@ model User {
   customer           Customer?
   cart               Cart[]
   vendor             Vendor?
-  product Product[]
+  product            Product[]
+  order              Order[]
+
   @@map("users")
 }
 
@@ -139,6 +141,7 @@ model Product {
   subCategory   SubCategory   @relation(fields: [subCategoryId], references: [id])
   seller        User          @relation(fields: [sellerId], references: [id])
   cart          Cart[]
+  orderItem     OrderItem[]
 }
 
 model Cart {
@@ -159,6 +162,59 @@ model Cart {
   product Product @relation(fields: [productId], references: [id])
 
   @@map("cart")
+}
+
+model Order {
+  id             String             @id @default(uuid())
+  userId         String
+  totalAmount    Decimal
+  paymentType    OrderPaymentType
+  paymentStatus  OrderPaymentStatus
+  status         OrderStatus
+  deliveryCharge Decimal            @default(0)
+  shippingInfo   Json
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user      User        @relation(fields: [userId], references: [id])
+  orderItem OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id            String   @id @default(uuid())
+  orderId       String
+  productId     String
+  quantity      Int
+  price         Decimal
+  discountPrice Decimal  @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orderItem Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("orderItem")
+}
+
+enum OrderPaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum OrderPaymentType {
+  COD
+  BKASH
+  NOGOD
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
 //! type

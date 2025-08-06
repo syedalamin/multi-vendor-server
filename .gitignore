@@ -10,7 +10,9 @@ node_modules
 #! temporary start
 
 Wishlist
-Order
+
+
+
 OrderItem
 Invoice
 PromoCode
