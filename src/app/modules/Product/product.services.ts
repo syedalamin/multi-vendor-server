@@ -54,7 +54,7 @@ const createDataIntoDB = async (req: Request): Promise<Product> => {
     },
   });
 
-  productData.sku = generateSku(isSubCategoryIdExist.name, productCount)
+  productData.sku = generateSku(isSubCategoryIdExist.name, productCount);
 
   // return productData;
 

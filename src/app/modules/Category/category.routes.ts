@@ -16,8 +16,8 @@ router.post(
   validateRequest(CategoryValidations.categoryValidation),
   CategoryControllers.createCategoryIntoDB
 );
-router.get("/", auth(UserRole.ADMIN), CategoryControllers.getAllCategoryFromDB);
-router.get("/:id", auth(UserRole.ADMIN), CategoryControllers.getByIdFromDB);
+router.get("/",  CategoryControllers.getAllCategoryFromDB);
+router.get("/:id",  CategoryControllers.getByIdFromDB);
 router.patch(
   "/:id",
   upload.single("file"),

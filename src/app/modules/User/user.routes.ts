@@ -28,7 +28,7 @@ router.post(
 );
 router.post(
   "/create-customer",
-  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  // auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
   upload.single("file"),
   formDataParser,
   validateRequest(UserValidations.customerValidation),

@@ -22,7 +22,8 @@ const getAllSubCategoryFromDB = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: status.OK,
     message: "Sub Category are retrieved successfully",
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 const getByIdFromDB = catchAsync(async (req, res) => {

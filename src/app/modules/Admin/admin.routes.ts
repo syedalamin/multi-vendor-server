@@ -1,15 +1,15 @@
-import express from "express";
-import { AdminControllers } from "./admin.controllers";
-import auth from "../../middlewares/auth";
 import { UserRole } from "@prisma/client";
+import express from "express";
 import { upload } from "../../../utils/fileUploader";
 import formDataParser from "../../../utils/formDataParser";
+import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
+import { AdminControllers } from "./admin.controllers";
 import { AdminValidations } from "./admin.validation";
 
 const router = express.Router();
 
-router.get("/", auth(UserRole.ADMIN), AdminControllers.getAllAdmins);
+router.get("/", AdminControllers.getAllAdmins);
 router.get("/:id", auth(UserRole.ADMIN), AdminControllers.getByIdFromDB);
 router.patch(
   "/:id",

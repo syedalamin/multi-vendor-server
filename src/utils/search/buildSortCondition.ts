@@ -2,7 +2,7 @@ import { IPaginationOptions, ISortOrder } from "../../interface/pagination";
 
 export const buildSortCondition = (options: IPaginationOptions , allowedSortFields: string | string[], allowedSortOrder: string | string[]) => {
   const page: number = Number(options.page) || 1;
-  const limit: number = Number(options.limit) || 2;
+  const limit: number = Number(options.limit) || 10;
   const skip: number = (page - 1) * limit;
 
   const sortBy: string = allowedSortFields.includes(options.sortBy || "")

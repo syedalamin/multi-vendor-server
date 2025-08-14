@@ -1,10 +1,10 @@
 import status from "http-status";
-import catchAsync from "../../../utils/share/catchAsync";
-import sendResponse from "../../../utils/share/sendResponse";
-import { ProductServices } from "./product.services";
 import { paginationFilterableField } from "../../../utils/pagination/pagination";
 import pick from "../../../utils/search/pick";
+import catchAsync from "../../../utils/share/catchAsync";
+import sendResponse from "../../../utils/share/sendResponse";
 import { productFilterAbleField } from "./product.constant";
+import { ProductServices } from "./product.services";
 
 const createDataIntoDB = catchAsync(async (req, res) => {
   const result = await ProductServices.createDataIntoDB(req);
@@ -15,6 +15,7 @@ const createDataIntoDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const getAllDataFromDB = catchAsync(async (req, res) => {
   const filters = pick(req.query, productFilterAbleField);
   const options = pick(req.query, paginationFilterableField);
@@ -27,6 +28,8 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
     data: result.data,
   });
 });
+
+
 const getByIdFromDB = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await ProductServices.getByIdFromDB(id);

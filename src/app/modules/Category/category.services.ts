@@ -97,6 +97,10 @@ const getAllCategoryFromDB = async (
     data: results,
   };
 };
+
+
+
+
 const getByIdFromDB = async (id: string) => {
   const result = await prisma.category.findFirstOrThrow({
     where: {

@@ -17,8 +17,8 @@ router.post(
   validateRequest(ProductValidation.productValidationSchema),
   ProductControllers.createDataIntoDB
 );
-router.get("/", auth(UserRole.ADMIN), ProductControllers.getAllDataFromDB);
-router.get("/:id", auth(UserRole.ADMIN), ProductControllers.getByIdFromDB);
+router.get("/",  ProductControllers.getAllDataFromDB);
+router.get("/:id", ProductControllers.getByIdFromDB);
 router.patch(
   "/:id",
   upload.any(),

@@ -3,7 +3,7 @@ import prisma from "../../../utils/share/prisma";
 import { OrderStatus, Prisma, UserStatus } from "@prisma/client";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
-import { Decimal } from "@prisma/client/runtime/library";
+
 
 const checkout = async (
   user: JwtPayload,
