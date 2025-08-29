@@ -65,14 +65,22 @@ const createDataIntoDB = async (
   const basePrice = new Prisma.Decimal(isProductExists.price).mul(
     payload.quantity
   );
+  // payload
+  payload.productName = isProductExists.name;
+  payload.basePrice = isProductExists.price;
   payload.price = basePrice;
-  if (payload.discountPercent) {
+  payload.productImage = isProductExists.productImages[0];
+  if (Number(isProductExists.discount) > 0) {
     const discountAmount = basePrice
-      .mul(new Prisma.Decimal(payload.discountPercent))
+      .mul(new Prisma.Decimal(isProductExists.discount))
       .div(100);
+
     payload.discountPrice = basePrice.sub(discountAmount);
     payload.discountAmount = discountAmount;
+    payload.discountPercent = new Prisma.Decimal(isProductExists.discount);
   }
+
+  // return payload;
 
   const result = await prisma.cart.create({ data: payload });
 
@@ -106,6 +114,54 @@ const getAllDataFromDB = async (user: JwtPayload) => {
   });
 
   return cartInfo;
+};
+
+const getShippingSummery = async (user: JwtPayload) => {
+  const userInfo = await prisma.user.findFirstOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  if (!userInfo) {
+    throw new ApiError(status.NOT_FOUND, "User is not found");
+  }
+
+  const cartList = await prisma.cart.findMany({
+    where: { userId: userInfo.id },
+    select: {
+      quantity: true,
+      price: true,
+      discountPrice: true,
+    },
+  });
+
+  const cartSummary = cartList.reduce(
+    (acc, item) => {
+      acc.totalItems += 1;
+      acc.totalQuantity += item.quantity;
+
+      if (Number(item.discountPrice) > 0) {
+        acc.totalDiscountPrice += Number(item.discountPrice);
+        acc.totalPrice += Number(item.price);
+      } else {
+        acc.totalDiscountPrice += Number(item.price);
+        acc.totalPrice += Number(item.price);
+      }
+
+      return acc;
+    },
+    { totalItems: 0, totalQuantity: 0, totalDiscountPrice: 0, totalPrice: 0 }
+  );
+
+  return cartSummary;
 };
 
 const getByIdFromDB = async (user: JwtPayload, id: string) => {
@@ -194,10 +250,11 @@ const updateByIdIntoDB = async (user: JwtPayload, payload: Partial<Cart>) => {
     payload.quantity
   );
   payload.price = basePrice;
-  if (payload.discountPercent) {
+  if (Number(isProductExists.discount) > 0) {
     const discountAmount = basePrice
-      .mul(new Prisma.Decimal(payload.discountPercent))
+      .mul(new Prisma.Decimal(isProductExists.discount))
       .div(100);
+
     payload.discountPrice = basePrice.sub(discountAmount);
     payload.discountAmount = discountAmount;
   }
@@ -212,8 +269,8 @@ const updateByIdIntoDB = async (user: JwtPayload, payload: Partial<Cart>) => {
 
   return result;
 };
-const deleteByIdFromDB = async(user: JwtPayload, id: string) => {
 
+const deleteByIdFromDB = async (user: JwtPayload, id: string) => {
   const userInfo = await prisma.user.findFirstOrThrow({
     where: {
       email: user?.email,
@@ -244,6 +301,7 @@ const deleteByIdFromDB = async(user: JwtPayload, id: string) => {
 export const CartServices = {
   createDataIntoDB,
   getAllDataFromDB,
+  getShippingSummery,
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,

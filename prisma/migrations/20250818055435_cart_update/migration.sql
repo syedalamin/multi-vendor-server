@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "cart" ADD COLUMN     "basePrice" DECIMAL(65,30) NOT NULL DEFAULT 0,
+ADD COLUMN     "productImage" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "productName" TEXT NOT NULL DEFAULT '';

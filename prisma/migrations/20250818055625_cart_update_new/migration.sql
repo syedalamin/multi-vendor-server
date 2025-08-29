@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "cart" ALTER COLUMN "basePrice" DROP DEFAULT,
+ALTER COLUMN "productImage" DROP DEFAULT,
+ALTER COLUMN "productName" DROP DEFAULT;

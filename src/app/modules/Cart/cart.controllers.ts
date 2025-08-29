@@ -27,6 +27,16 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getShippingSummery = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await CartServices.getShippingSummery(user as JwtPayload);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Shipping Summery are retrieved successfully",
+    data: result,
+  });
+});
 const getByIdFromDB = catchAsync(async (req, res) => {
   const user = req.user;
   const { id } = req.params;
@@ -66,6 +76,7 @@ const deleteByIdFromDB = catchAsync(async (req, res) => {
 export const CartControllers = {
   createDataIntoDB,
   getAllDataFromDB,
+  getShippingSummery,
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,

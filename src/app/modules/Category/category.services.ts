@@ -78,6 +78,7 @@ const getAllCategoryFromDB = async (
         select: {
           id: true,
           name: true,
+          image: true,
           categoryId: true,
           isDeleted: true,
         },
@@ -101,10 +102,10 @@ const getAllCategoryFromDB = async (
 
 
 
-const getByIdFromDB = async (id: string) => {
+const getBySlugFromDB = async (slug: string) => {
   const result = await prisma.category.findFirstOrThrow({
     where: {
-      id,
+      slug,
       isDeleted: false,
     },
     include: {
@@ -112,6 +113,8 @@ const getByIdFromDB = async (id: string) => {
         select: {
           id: true,
           name: true,
+          slug: true,
+          image: true,
           categoryId: true,
           isDeleted: true,
         },
@@ -282,7 +285,7 @@ const deleteByIdFromDB = async (id: string) => {
 export const CategoryServices = {
   createCategoryIntoDB,
   getAllCategoryFromDB,
-  getByIdFromDB,
+  getBySlugFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
   softDeleteByIdFromDB,

@@ -99,10 +99,10 @@ const getAllSubCategoryFromDB = async (
     data: results,
   };
 };
-const getByIdFromDB = async (id: string) => {
+const getBySlugFromDB = async (slug: string) => {
   const result = await prisma.subCategory.findFirstOrThrow({
     where: {
-      id,
+      slug,
       isDeleted: false,
     },
     include: {
@@ -114,6 +114,7 @@ const getByIdFromDB = async (id: string) => {
           image: true,
         },
       },
+      product: true,
     },
   });
 
@@ -217,7 +218,7 @@ const deleteByIdFromDB = async (id: string) => {
 export const SubCategoryServices = {
   createSubCategoryIntoDB,
   getAllSubCategoryFromDB,
-  getByIdFromDB,
+  getBySlugFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
   deleteByIdFromDB,

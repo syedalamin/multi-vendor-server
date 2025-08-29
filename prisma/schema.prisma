@@ -30,6 +30,7 @@ model User {
   vendor             Vendor?
   product            Product[]
   order              Order[]
+  rating             Rating[]
 
   @@map("users")
 }
@@ -142,13 +143,31 @@ model Product {
   seller        User          @relation(fields: [sellerId], references: [id])
   cart          Cart[]
   orderItem     OrderItem[]
+  ratings       Rating[]
+}
+
+model Rating {
+  id        String   @id @default(uuid())
+  value     Int
+  review    String
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
 }
 
 model Cart {
   id              String     @id @default(uuid())
   userId          String
   productId       String
+  productName     String
+  productImage    String
   quantity        Int
+  basePrice       Decimal
   price           Decimal
   discountPrice   Decimal    @default(0)
   discountAmount  Decimal    @default(0)

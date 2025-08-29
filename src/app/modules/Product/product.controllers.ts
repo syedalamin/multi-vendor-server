@@ -29,7 +29,16 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
   });
 });
 
+const getBySlugFromDB = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await ProductServices.getBySlugFromDB(id);
 
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Product is retrieved successfully",
+    data: result,
+  });
+});
 const getByIdFromDB = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await ProductServices.getByIdFromDB(id);
@@ -40,6 +49,7 @@ const getByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const updateByIdIntoDB = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await ProductServices.updateByIdIntoDB(id, req);
@@ -61,10 +71,34 @@ const softDeleteByIdFromDB = catchAsync(async (req, res) => {
   });
 });
 
+const productRating = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await ProductServices.productRating(id, req);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Product Rating is updated successfully",
+    data: result,
+  });
+});
+const relatedProducts = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await ProductServices.relatedProducts(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Related Products are retrieved successfully",
+    data: result,
+  });
+});
+
 export const ProductControllers = {
   createDataIntoDB,
   getAllDataFromDB,
+  getBySlugFromDB,
   getByIdFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
+  productRating,
+  relatedProducts
 };

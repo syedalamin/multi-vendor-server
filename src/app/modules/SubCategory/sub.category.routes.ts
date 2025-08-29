@@ -18,7 +18,7 @@ router.post(
   SubCategoryControllers.createSubCategoryIntoDB
 );
 router.get("/", SubCategoryControllers.getAllSubCategoryFromDB);
-router.get("/:id", SubCategoryControllers.getByIdFromDB);
+router.get("/:slug", SubCategoryControllers.getBySlugFromDB);
 router.patch(
   "/:id",
   upload.single("file"),

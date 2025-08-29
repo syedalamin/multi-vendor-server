@@ -26,9 +26,9 @@ const getAllSubCategoryFromDB = catchAsync(async (req, res) => {
     data: result.data,
   });
 });
-const getByIdFromDB = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await SubCategoryServices.getByIdFromDB(id);
+const getBySlugFromDB = catchAsync(async (req, res) => {
+  const { slug } = req.params;
+  const result = await SubCategoryServices.getBySlugFromDB(slug);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -70,7 +70,7 @@ const deleteByIdFromDB = catchAsync(async (req, res) => {
 export const SubCategoryControllers = {
   createSubCategoryIntoDB,
   getAllSubCategoryFromDB,
-  getByIdFromDB,
+  getBySlugFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
   deleteByIdFromDB,

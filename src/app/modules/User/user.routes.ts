@@ -36,10 +36,15 @@ router.post(
 );
 
 router.get("/", auth(UserRole.ADMIN), UserControllers.getAllUserFromDB);
-router.get("/me", auth(UserRole.ADMIN), UserControllers.getMyProfile);
+router.get(
+  "/me",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
+  UserControllers.getMyProfile
+);
 router.get("/:id", auth(UserRole.ADMIN), UserControllers.getByIdFromDB);
 router.patch(
   "/me",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
   upload.single("file"),
   formDataParser,
   validateRequest(UserValidations.myProfileValidation),

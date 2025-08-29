@@ -1,13 +1,13 @@
 import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../utils/share/prisma";
-import { OrderStatus, Prisma, UserStatus } from "@prisma/client";
+import { OrderStatus, Prisma, UserRole, UserStatus } from "@prisma/client";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
-
+import { IShippingInfoRequest } from "./order.interface";
 
 const checkout = async (
   user: JwtPayload,
-  shippingInfo: any,
+  shippingInfo: IShippingInfoRequest,
   paymentType: any
 ) => {
   const userInfo = await prisma.user.findFirstOrThrow({
@@ -52,26 +52,39 @@ const checkout = async (
       }
     }
 
-    const totalPrice = isCartExists.reduce(
+    const cartSummary = isCartExists.reduce(
       (acc, item) => {
-        acc.price += Number(item.price);
-        acc.discountPrice += Number(item.discountPrice);
+        acc.totalItems += 1;
+        acc.totalQuantity += item.quantity;
+
+        if (Number(item.discountPrice) > 0) {
+          acc.totalDiscountPrice += Number(item.discountPrice);
+          acc.totalPrice += Number(item.price);
+        } else {
+          acc.totalDiscountPrice += Number(item.price);
+          acc.totalPrice += Number(item.price);
+        }
 
         return acc;
       },
-      { price: 0, discountPrice: 0 }
+      { totalItems: 0, totalQuantity: 0, totalDiscountPrice: 0, totalPrice: 0 }
     );
 
-    const deliveryCharge = Number(50);
+    let deliveryCharge;
+    if (shippingInfo.districts.toLowerCase() != "dhaka") {
+      deliveryCharge = Number(130);
+    } else {
+      deliveryCharge = Number(80);
+    }
 
     let finalAmount;
     if (
-      totalPrice.discountPrice > 0 &&
-      totalPrice.discountPrice < totalPrice.price
+      cartSummary.totalDiscountPrice > 0 &&
+      cartSummary.totalDiscountPrice < cartSummary.totalPrice
     ) {
-      finalAmount = totalPrice.discountPrice + deliveryCharge;
+      finalAmount = cartSummary.totalDiscountPrice + deliveryCharge;
     } else {
-      finalAmount = totalPrice.price + deliveryCharge;
+      finalAmount = cartSummary.totalPrice + deliveryCharge;
     }
 
     const order = await tx.order.create({
@@ -114,6 +127,25 @@ const checkout = async (
 };
 
 const getAllDataFromDB = async (user: JwtPayload) => {
+  await prisma.user.findFirstOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+      role: UserRole.ADMIN,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+  const isOrderExists = await prisma.order.findMany({});
+
+  return isOrderExists;
+};
+
+const getMyDataFromDB = async (user: JwtPayload) => {
   const userInfo = await prisma.user.findFirstOrThrow({
     where: {
       email: user?.email,
@@ -137,6 +169,7 @@ const getAllDataFromDB = async (user: JwtPayload) => {
 
   return isOrderExists;
 };
+
 const getByIdFromDB = async (user: JwtPayload, id: string) => {
   const userInfo = await prisma.user.findFirstOrThrow({
     where: {
@@ -216,7 +249,7 @@ const updateStatusByIdIntoDB = async (
       id: isOrderExists.id,
     },
     data: payload,
-  }); 
+  });
 
   return updateStatus;
 };
@@ -228,4 +261,5 @@ export const OrderServices = {
   getByIdFromDB,
   updateStatusByIdIntoDB,
   deleteByIdFromDB,
+  getMyDataFromDB
 };

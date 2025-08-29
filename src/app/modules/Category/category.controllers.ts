@@ -27,9 +27,9 @@ const getAllCategoryFromDB = catchAsync(async (req, res) => {
   });
 });
 
-const getByIdFromDB = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await CategoryServices.getByIdFromDB(id);
+const getBySlugFromDB = catchAsync(async (req, res) => {
+  const { slug } = req.params;
+  const result = await CategoryServices.getBySlugFromDB(slug);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -71,7 +71,7 @@ const deleteByIdFromDB = catchAsync(async (req, res) => {
 export const CategoryControllers = {
   createCategoryIntoDB,
   getAllCategoryFromDB,
-  getByIdFromDB,
+  getBySlugFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
   deleteByIdFromDB,

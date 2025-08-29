@@ -18,6 +18,11 @@ router.get(
   auth(UserRole.ADMIN, UserRole.CUSTOMER),
   CartControllers.getAllDataFromDB
 );
+router.get(
+  "/cart-total",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
+  CartControllers.getShippingSummery
+);
 
 router.get("/:id", auth(UserRole.ADMIN, UserRole.CUSTOMER), CartControllers.getByIdFromDB);
 

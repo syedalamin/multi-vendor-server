@@ -13,23 +13,30 @@ router.post(
   "/create-product",
   upload.any(),
   formDataParser,
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   validateRequest(ProductValidation.productValidationSchema),
   ProductControllers.createDataIntoDB
 );
-router.get("/",  ProductControllers.getAllDataFromDB);
-router.get("/:id", ProductControllers.getByIdFromDB);
+router.get("/", ProductControllers.getAllDataFromDB);
+router.get("/:id", ProductControllers.getBySlugFromDB);
+router.get("/id/:id", ProductControllers.getByIdFromDB);
+router.get("/related/:id", ProductControllers.relatedProducts);
 router.patch(
   "/:id",
   upload.any(),
   formDataParser,
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   ProductControllers.updateByIdIntoDB
 );
 router.delete(
   "/soft/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   ProductControllers.softDeleteByIdFromDB
+);
+router.patch(
+  "/:id/rating",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
+  ProductControllers.productRating
 );
 
 export const ProductRoutes = router;
