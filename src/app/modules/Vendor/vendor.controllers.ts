@@ -30,6 +30,16 @@ const getByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const verifyUpdateByIdIntoDB = catchAsync(async (req, res) => {
+  const {id} = req.params;
+  const result = await VendorServices.verifyUpdateByIdIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Vendor Status is Updated successfully",
+    data: result,
+  });
+});
 const updateByIdIntoDB = catchAsync(async (req, res) => {
   const { id } = req.params;
 
@@ -67,5 +77,6 @@ export const VendorControllers = {
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
+  verifyUpdateByIdIntoDB,
   softDeleteByIdFromDB
 };

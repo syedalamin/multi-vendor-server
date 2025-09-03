@@ -22,6 +22,7 @@ router.patch(
   validateRequest(VendorValidation.vendorUpdateValidation),
   VendorControllers.updateByIdIntoDB
 );
+router.patch("/verify/:id", auth(UserRole.ADMIN), VendorControllers.verifyUpdateByIdIntoDB);
 router.delete("/:id", auth(UserRole.ADMIN), VendorControllers.deleteByIdFromDB);
 router.delete("/soft/:id", auth(UserRole.ADMIN), VendorControllers.softDeleteByIdFromDB);
 

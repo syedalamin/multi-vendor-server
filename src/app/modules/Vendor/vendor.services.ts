@@ -136,6 +136,30 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
 
   return result;
 };
+const verifyUpdateByIdIntoDB = async (id: string,) => {
+
+
+  const isVendorExist = await prisma.vendor.findFirst({
+    where: {
+      id,
+      isBlocked: false,
+    },
+  });
+  if (!isVendorExist) {
+    throw new ApiError(status.NOT_FOUND, "Vendor is not found");
+  }
+
+  const result = await prisma.vendor.update({
+    where: {
+      id: isVendorExist.id,
+    },
+    data: {
+      isVerified: true,
+    },
+  });
+
+  return result;
+};
 
 const deleteByIdFromDB = async () => {};
 
@@ -186,5 +210,6 @@ export const VendorServices = {
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
+  verifyUpdateByIdIntoDB,
   softDeleteByIdFromDB,
 };
