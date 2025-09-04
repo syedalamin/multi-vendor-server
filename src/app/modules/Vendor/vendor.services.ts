@@ -168,18 +168,15 @@ const deleteByIdFromDB = async (id: string) => {
   if (!isVendorExist) {
     throw new ApiError(status.NOT_FOUND, "Vendor is not found");
   }
-  const isUserExist = await prisma.user.findUniqueOrThrow({
-    where: { email: isVendorExist.email },
-  });
 
   const result = await prisma.$transaction(async (transactionClient) => {
     await transactionClient.user.delete({
-      where: { id: isUserExist.id },
+      where: { email: isVendorExist.email },
     });
 
     const result = await prisma.vendor.delete({
       where: {
-        id: isVendorExist.id,
+        email: isVendorExist.email,
       },
     });
 
