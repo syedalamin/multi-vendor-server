@@ -142,6 +142,7 @@ const getAllDataFromDB = async (user: JwtPayload) => {
   });
   const isOrderExists = await prisma.order.findMany({
     select: {
+      id: true,
       userId: true,
       totalAmount: true,
       paymentStatus: true,
