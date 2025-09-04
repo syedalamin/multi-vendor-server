@@ -140,7 +140,18 @@ const getAllDataFromDB = async (user: JwtPayload) => {
       status: true,
     },
   });
-  const isOrderExists = await prisma.order.findMany({});
+  const isOrderExists = await prisma.order.findMany({
+    select: {
+      userId: true,
+      totalAmount: true,
+      paymentStatus: true,
+      paymentType: true,
+      status: true,
+      deliveryCharge: true,
+      shippingInfo: true,
+      orderItem: true,
+    },
+  });
 
   return isOrderExists;
 };
@@ -261,5 +272,5 @@ export const OrderServices = {
   getByIdFromDB,
   updateStatusByIdIntoDB,
   deleteByIdFromDB,
-  getMyDataFromDB
+  getMyDataFromDB,
 };
