@@ -170,14 +170,14 @@ const deleteByIdFromDB = async (id: string) => {
   }
 
   const result = await prisma.$transaction(async (transactionClient) => {
-    await transactionClient.user.delete({
-      where: { email: isVendorExist.email },
-    });
-
     const result = await transactionClient.vendor.delete({
       where: {
         email: isVendorExist.email,
       },
+    });
+
+    await transactionClient.user.delete({
+      where: { email: isVendorExist.email },
     });
 
     return result;
