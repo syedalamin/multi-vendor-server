@@ -19,12 +19,21 @@ router.get(
   CartControllers.getAllDataFromDB
 );
 router.get(
+  "/all-cart",
+  auth(UserRole.ADMIN),
+  CartControllers.getAllCartDataFromDB
+);
+router.get(
   "/cart-total",
   auth(UserRole.ADMIN, UserRole.CUSTOMER),
   CartControllers.getShippingSummery
 );
 
-router.get("/:id", auth(UserRole.ADMIN, UserRole.CUSTOMER), CartControllers.getByIdFromDB);
+router.get(
+  "/:id",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
+  CartControllers.getByIdFromDB
+);
 
 router.patch(
   "/:id",
@@ -32,6 +41,10 @@ router.patch(
   validateRequest(CartValidation.cartUpdateValidation),
   CartControllers.updateByIdIntoDB
 );
-router.delete("/:id", auth(UserRole.ADMIN, UserRole.CUSTOMER), CartControllers.deleteByIdFromDB);
+router.delete(
+  "/:id",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
+  CartControllers.deleteByIdFromDB
+);
 
 export const CartRoutes = router;

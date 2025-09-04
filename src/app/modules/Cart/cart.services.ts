@@ -115,6 +115,11 @@ const getAllDataFromDB = async (user: JwtPayload) => {
 
   return cartInfo;
 };
+const getAllCartDataFromDB = async () => {
+  const cartInfo = await prisma.cart.findMany({});
+
+  return cartInfo;
+};
 
 const getShippingSummery = async (user: JwtPayload) => {
   const userInfo = await prisma.user.findFirstOrThrow({
@@ -302,6 +307,7 @@ export const CartServices = {
   createDataIntoDB,
   getAllDataFromDB,
   getShippingSummery,
+  getAllCartDataFromDB,
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,

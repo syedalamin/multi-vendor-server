@@ -27,6 +27,16 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getAllCartDataFromDB = catchAsync(async (req, res) => {
+
+  const result = await CartServices.getAllCartDataFromDB();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "All Cart are retrieved successfully",
+    data: result,
+  });
+});
 const getShippingSummery = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await CartServices.getShippingSummery(user as JwtPayload);
@@ -80,4 +90,5 @@ export const CartControllers = {
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
+  getAllCartDataFromDB
 };
