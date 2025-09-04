@@ -66,7 +66,7 @@ const softDeleteByIdFromDB = catchAsync(async (req, res) => {
 
   sendResponse(res, {
     statusCode: status.OK,
-    message: "Product is deleted successfully",
+    message: "Product Status Changed successfully",
     data: result,
   });
 });
