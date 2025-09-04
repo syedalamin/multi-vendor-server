@@ -136,9 +136,7 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
 
   return result;
 };
-const verifyUpdateByIdIntoDB = async (id: string,) => {
-
-
+const verifyUpdateByIdIntoDB = async (id: string) => {
   const isVendorExist = await prisma.vendor.findFirst({
     where: {
       id,
@@ -161,7 +159,35 @@ const verifyUpdateByIdIntoDB = async (id: string,) => {
   return result;
 };
 
-const deleteByIdFromDB = async () => {};
+const deleteByIdFromDB = async (id: string) => {
+  const isVendorExist = await prisma.vendor.findFirst({
+    where: {
+      id,
+    },
+  });
+  if (!isVendorExist) {
+    throw new ApiError(status.NOT_FOUND, "Vendor is not found");
+  }
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: { email: isVendorExist.email },
+  });
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.user.delete({
+      where: { id: isUserExist.id },
+    });
+
+    const result = await prisma.vendor.delete({
+      where: {
+        id: isVendorExist.id,
+      },
+    });
+
+    return result;
+  });
+
+  return result;
+};
 
 const softDeleteByIdFromDB = async (id: string) => {
   const isVendorExist = await prisma.vendor.findFirst({

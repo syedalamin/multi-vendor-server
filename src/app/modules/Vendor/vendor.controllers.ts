@@ -52,7 +52,8 @@ const updateByIdIntoDB = catchAsync(async (req, res) => {
   });
 });
 const deleteByIdFromDB = catchAsync(async (req, res) => {
-  const result = await VendorServices.deleteByIdFromDB();
+  const {id} = req.params
+  const result = await VendorServices.deleteByIdFromDB(id);
 
   sendResponse(res, {
     statusCode: status.OK,
