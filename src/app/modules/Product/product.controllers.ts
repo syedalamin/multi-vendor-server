@@ -49,6 +49,16 @@ const getByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getByIdsFromDB = catchAsync(async (req, res) => {
+
+  const result = await ProductServices.getByIdsFromDB(req);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Product are retrieved successfully",
+    data: result,
+  });
+});
 
 const updateByIdIntoDB = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -100,5 +110,6 @@ export const ProductControllers = {
   updateByIdIntoDB,
   softDeleteByIdFromDB,
   productRating,
-  relatedProducts
+  relatedProducts,
+  getByIdsFromDB
 };

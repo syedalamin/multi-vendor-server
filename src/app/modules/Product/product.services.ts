@@ -179,6 +179,36 @@ const getByIdFromDB = async (id: string) => {
 
   return result;
 };
+const getByIdsFromDB = async (req: Request) => {
+  const { ids } = req.body; 
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new Error("ids must be a non-empty array");
+  }
+
+  const result = await prisma.product.findMany({
+    where: {
+      id: { in: ids }, 
+      status: {
+        in: [
+          ProductStatus.ACTIVE,
+          ProductStatus.DISCONTINUED,
+          ProductStatus.OUT_OF_STOCK,
+        ],
+      },
+    },
+    include: {
+      subCategory: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  return result; 
+};
 
 const updateByIdIntoDB = async (id: string, req: Request) => {
   const productData = req.body;
@@ -407,5 +437,6 @@ export const ProductServices = {
   updateByIdIntoDB,
   softDeleteByIdFromDB,
   productRating,
-  relatedProducts
+  relatedProducts,
+  getByIdsFromDB
 };
