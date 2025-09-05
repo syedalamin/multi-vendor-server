@@ -13,7 +13,7 @@ router.post(
   "/create-sub-category",
   upload.single("file"),
   formDataParser,
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   validateRequest(SubCategoryValidations.subCategoryValidation),
   SubCategoryControllers.createSubCategoryIntoDB
 );
@@ -23,18 +23,18 @@ router.patch(
   "/:id",
   upload.single("file"),
   formDataParser,
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   validateRequest(SubCategoryValidations.updateSubCategoryValidation),
   SubCategoryControllers.updateByIdIntoDB
 );
 router.delete(
   "/soft/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   SubCategoryControllers.softDeleteByIdFromDB
 );
 router.delete(
   "/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   SubCategoryControllers.deleteByIdFromDB
 );
 

@@ -127,11 +127,14 @@ const checkout = async (
 };
 
 const getAllDataFromDB = async (user: JwtPayload) => {
+
+ 
+
   await prisma.user.findFirstOrThrow({
     where: {
       email: user?.email,
       status: UserStatus.ACTIVE,
-      role: UserRole.ADMIN,
+      role: UserRole.VENDOR,
     },
     select: {
       id: true,
@@ -179,8 +182,11 @@ const getMyDataFromDB = async (user: JwtPayload) => {
     },
   });
 
+  
   return isOrderExists;
 };
+
+
 
 const getByIdFromDB = async (user: JwtPayload, id: string) => {
   const userInfo = await prisma.user.findFirstOrThrow({

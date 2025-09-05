@@ -12,29 +12,29 @@ router.post(
   "/create-category",
   upload.single("file"),
   formDataParser,
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   validateRequest(CategoryValidations.categoryValidation),
   CategoryControllers.createCategoryIntoDB
 );
-router.get("/",  CategoryControllers.getAllCategoryFromDB);
+router.get("/", CategoryControllers.getAllCategoryFromDB);
 
-router.get("/:slug",  CategoryControllers.getBySlugFromDB);
+router.get("/:slug", CategoryControllers.getBySlugFromDB);
 router.patch(
   "/:id",
   upload.single("file"),
   formDataParser,
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   validateRequest(CategoryValidations.updateCategoryValidation),
   CategoryControllers.updateByIdIntoDB
 );
 router.delete(
   "/soft/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   CategoryControllers.softDeleteByIdFromDB
 );
 router.delete(
   "/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   CategoryControllers.deleteByIdFromDB
 );
 
