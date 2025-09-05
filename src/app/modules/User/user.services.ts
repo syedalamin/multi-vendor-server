@@ -1,22 +1,22 @@
 import { Admin, User, UserRole, UserStatus } from "@prisma/client";
-import prisma from "../../../utils/share/prisma";
 import bcrypt from "bcrypt";
-import sendImageToCloudinary from "../../../utils/sendCloudinary";
-import { ICloudinaryUploadResponse } from "../../../interface/file";
 import { Request } from "express";
 import status from "http-status";
-import ApiError from "../../../utils/share/apiError";
-import { IUserFilterRequest } from "./user.interface";
-import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
-import { userSearchAbleFields } from "./user.constants";
+import { JwtPayload } from "jsonwebtoken";
+import { ICloudinaryUploadResponse } from "../../../interface/file";
 import { IPaginationOptions } from "../../../interface/pagination";
-import { buildSortCondition } from "../../../utils/search/buildSortCondition";
 import {
   allowedSortOrder,
   allowedUserSortFields,
 } from "../../../utils/pagination/pagination";
-import { JwtPayload } from "jsonwebtoken";
+import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
+import { buildSortCondition } from "../../../utils/search/buildSortCondition";
+import sendImageToCloudinary from "../../../utils/sendCloudinary";
+import ApiError from "../../../utils/share/apiError";
+import prisma from "../../../utils/share/prisma";
 import { generateSlug } from "../../../utils/slug/generateSlug";
+import { userSearchAbleFields } from "./user.constants";
+import { IUserFilterRequest } from "./user.interface";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
   const isUserExist = await prisma.admin.findFirst({
