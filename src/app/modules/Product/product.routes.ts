@@ -17,9 +17,9 @@ router.post(
   validateRequest(ProductValidation.productValidationSchema),
   ProductControllers.createDataIntoDB
 );
+router.post("/ids/", ProductControllers.getByIdsFromDB);
 router.get("/", ProductControllers.getAllDataFromDB);
 router.get("/:id", ProductControllers.getBySlugFromDB);
-router.get("/ids/", ProductControllers.getByIdsFromDB);
 router.get("/id/:id", ProductControllers.getByIdFromDB);
 router.get("/related/:id", ProductControllers.relatedProducts);
 router.patch(
