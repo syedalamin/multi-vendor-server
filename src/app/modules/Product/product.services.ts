@@ -189,13 +189,6 @@ const getByIdsFromDB = async (req: Request) => {
   const result = await prisma.product.findMany({
     where: {
       id: { in: ids }, 
-      status: {
-        in: [
-          ProductStatus.ACTIVE,
-          ProductStatus.DISCONTINUED,
-          ProductStatus.OUT_OF_STOCK,
-        ],
-      },
     },
     include: {
       subCategory: {
