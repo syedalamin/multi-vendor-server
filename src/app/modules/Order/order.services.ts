@@ -205,7 +205,11 @@ const getByIdFromDB = async (user: JwtPayload, id: string) => {
       id: id,
     },
     include: {
-      orderItem: true,
+      orderItem: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 
