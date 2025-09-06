@@ -251,6 +251,12 @@ const getMyProfile = async (user?: JwtPayload) => {
         email: userInfo.email,
       },
     });
+  } else {
+    profileInfo = await prisma.vendor.findUniqueOrThrow({
+      where: {
+        email: userInfo.email,
+      },
+    });
   }
 
   return { ...userInfo, ...profileInfo };

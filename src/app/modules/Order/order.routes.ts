@@ -13,7 +13,14 @@ router.post(
   validateRequest(OrderValidation.shippingInfoValidation),
   OrderControllers.createDataIntoDB
 );
-router.get("/", auth(UserRole.ADMIN,  UserRole.VENDOR), OrderControllers.getAllDataFromDB);
+router.get("/", auth(UserRole.ADMIN), OrderControllers.getAllDataFromDB);
+
+router.get(
+  "/vendor/my-order",
+  auth(UserRole.VENDOR),
+  OrderControllers.getMyVendorDataFromDB
+);
+
 router.get(
   "/my-order",
   auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
@@ -21,17 +28,17 @@ router.get(
 );
 router.get(
   "/:id",
-  auth(UserRole.ADMIN, UserRole.CUSTOMER,  UserRole.VENDOR),
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
   OrderControllers.getByIdFromDB
 );
 router.patch(
   "/status/:id",
-  auth(UserRole.ADMIN,   UserRole.VENDOR),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   OrderControllers.updateStatusByIdIntoDB
 );
 router.delete(
   "/:id",
-  auth(UserRole.ADMIN,   UserRole.VENDOR),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   OrderControllers.deleteByIdFromDB
 );
 

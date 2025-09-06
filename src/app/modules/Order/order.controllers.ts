@@ -28,6 +28,16 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getMyVendorDataFromDB = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await OrderServices.getMyVendorDataFromDB(user as JwtPayload);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "My Order are retrieved successfully",
+    data: result,
+  });
+});
 const getMyDataFromDB = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await OrderServices.getMyDataFromDB(user as JwtPayload);
@@ -75,5 +85,7 @@ export const OrderControllers = {
   getByIdFromDB,
   updateStatusByIdIntoDB,
   deleteByIdFromDB,
-  getMyDataFromDB
+  getMyDataFromDB,
+  getMyVendorDataFromDB
+  
 };

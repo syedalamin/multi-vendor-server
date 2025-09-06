@@ -29,8 +29,9 @@ model User {
   cart               Cart[]
   vendor             Vendor?
   product            Product[]
-  order              Order[]
   rating             Rating[]
+  order              Order[]     @relation("CustomerOrders")
+  sellerOrders       Order[]     @relation("SellerOrders")
 
   @@map("users")
 }
@@ -161,9 +162,10 @@ model Rating {
 }
 
 model Cart {
-  id              String     @id @default(uuid())
-  userId          String
-  productId       String
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+
   productName     String
   productImage    String
   quantity        Int
@@ -186,6 +188,7 @@ model Cart {
 model Order {
   id             String             @id @default(uuid())
   userId         String
+  sellerId       String
   totalAmount    Decimal
   paymentType    OrderPaymentType
   paymentStatus  OrderPaymentStatus
@@ -194,19 +197,19 @@ model Order {
   shippingInfo   Json
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
-
-  user      User        @relation(fields: [userId], references: [id])
-  orderItem OrderItem[]
+  user           User               @relation("CustomerOrders", fields: [userId], references: [id])
+  seller         User               @relation("SellerOrders", fields: [sellerId], references: [id])
+  orderItem      OrderItem[]
 
   @@map("order")
 }
 
 model OrderItem {
-  id            String   @id @default(uuid())
-  orderId       String
-  productId     String
-  quantity      Int
-  
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+
   price         Decimal
   discountPrice Decimal  @default(0)
   createdAt     DateTime @default(now())
