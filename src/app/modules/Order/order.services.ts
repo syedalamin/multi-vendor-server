@@ -1,6 +1,6 @@
 import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../utils/share/prisma";
-import { OrderStatus, Prisma, UserRole, UserStatus } from "@prisma/client";
+import { OrderPaymentStatus, OrderStatus, Prisma, UserRole, UserStatus } from "@prisma/client";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
 import { IShippingInfoRequest } from "./order.interface";
@@ -578,6 +578,58 @@ const updateStatusByIdIntoDB = async (
 
   return updateStatus;
 };
+const orderPaymentStatus = (current: string, payload: OrderPaymentStatus) => {
+  if (current === payload) {
+    throw new ApiError(status.CONFLICT, `Same status no update needed`);
+  }
+
+  if (current === OrderPaymentStatus.FAILED || current === OrderPaymentStatus.PAID) {
+    throw new ApiError(
+      status.CONFLICT,
+      `Order already ${current}, can't change `
+    );
+  }
+
+  if (
+    current === OrderPaymentStatus.PENDING &&
+    (payload === OrderPaymentStatus.PAID || payload === OrderPaymentStatus.FAILED)
+  ) {
+    return true;
+  }
+
+};
+
+const updatePaymentStatusByIdIntoDB = async (
+  id: string,
+  payload: { paymentStatus: OrderPaymentStatus }
+) => {
+  const isOrderExists = await prisma.order.findFirstOrThrow({
+    where: {
+      id: id,
+    },
+    select: {
+      id: true,
+      paymentStatus: true
+    },
+  });
+
+  if (!orderPaymentStatus(isOrderExists.paymentStatus, payload.paymentStatus)) {
+    throw new ApiError(
+      status.CONFLICT,
+      `Invalid status transition from ${isOrderExists.paymentStatus} to ${payload.paymentStatus}`
+    );
+  }
+
+  const updateStatus = await prisma.order.update({
+    where: {
+      id: isOrderExists.id,
+    },
+    data: payload,
+  });
+
+  return updateStatus;
+};
+
 const deleteByIdFromDB = () => {};
 
 export const OrderServices = {
@@ -587,5 +639,6 @@ export const OrderServices = {
   updateStatusByIdIntoDB,
   deleteByIdFromDB,
   getMyDataFromDB,
-  getMyVendorDataFromDB
+  getMyVendorDataFromDB,
+  updatePaymentStatusByIdIntoDB
 };

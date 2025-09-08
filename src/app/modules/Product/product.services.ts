@@ -1,4 +1,4 @@
-import { Product, ProductStatus } from "@prisma/client";
+import { Product, ProductStatus, UserRole } from "@prisma/client";
 import { Request } from "express";
 import status from "http-status";
 import { ICloudinaryUploadResponse } from "../../../interface/file";
@@ -13,6 +13,7 @@ import { generateSku, generateSlug } from "../../../utils/slug/generateSlug";
 import { allowedProductSortAbleField } from "./product.constant";
 import { IProductFilterFields } from "./product.interface";
 import { Decimal } from "@prisma/client/runtime/library";
+import { JwtPayload } from "jsonwebtoken";
 
 const createDataIntoDB = async (req: Request) => {
   const productData = req.body;
@@ -129,6 +130,93 @@ const getAllDataFromDB = async (
     data: result,
   };
 };
+
+const getAllMyDataFromDB = async (
+  filters: IProductFilterFields,
+  options: IPaginationOptions,
+  user: JwtPayload
+) => {
+  const { limit, page, skip, sortBy, sortOrder } = buildSortCondition(
+    options,
+    allowedProductSortAbleField,
+    allowedSortOrder
+  );
+
+  const whereConditions = buildSearchAndFilterCondition<IProductFilterFields>(
+    filters,
+    ["name"]
+  );
+
+  const userInfo = await prisma.user.findFirstOrThrow({
+    where: {
+      email: user?.email,
+      role: UserRole.VENDOR,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  const result = await prisma.product.findMany({
+    where: {
+      ...whereConditions,
+      sellerId: userInfo.id,
+      status: {
+        in: [
+          ProductStatus.ACTIVE,
+          ProductStatus.DISCONTINUED,
+          ProductStatus.OUT_OF_STOCK,
+        ],
+      },
+    },
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder
+        ? {
+            [sortBy]: sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+    include: {
+      subCategory: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  });
+  const total = await prisma.product.count({
+    where: {
+      ...whereConditions,
+      sellerId: userInfo.id,
+      status: {
+        in: [
+          ProductStatus.ACTIVE,
+          ProductStatus.DISCONTINUED,
+          ProductStatus.OUT_OF_STOCK,
+        ],
+      },
+    },
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+
+
 const getBySlugFromDB = async (slug: string) => {
   const result = await prisma.product.findFirstOrThrow({
     where: {
@@ -180,7 +268,7 @@ const getByIdFromDB = async (id: string) => {
   return result;
 };
 const getByIdsFromDB = async (req: Request) => {
-  const { ids } = req.body; 
+  const { ids } = req.body;
 
   if (!Array.isArray(ids) || ids.length === 0) {
     throw new Error("ids must be a non-empty array");
@@ -188,7 +276,7 @@ const getByIdsFromDB = async (req: Request) => {
 
   const result = await prisma.product.findMany({
     where: {
-      id: { in: ids }, 
+      id: { in: ids },
     },
     include: {
       subCategory: {
@@ -200,7 +288,7 @@ const getByIdsFromDB = async (req: Request) => {
     },
   });
 
-  return result; 
+  return result;
 };
 
 const updateByIdIntoDB = async (id: string, req: Request) => {
@@ -431,5 +519,6 @@ export const ProductServices = {
   softDeleteByIdFromDB,
   productRating,
   relatedProducts,
-  getByIdsFromDB
+  getByIdsFromDB,
+  getAllMyDataFromDB
 };

@@ -8,6 +8,7 @@ import { ProductRoutes } from "../modules/Product/product.routes";
 import { CartRoutes } from "../modules/Cart/cart.routes";
 import { VendorRoutes } from "../modules/Vendor/vendor.routes";
 import { OrderRoutes } from "../modules/Order/order.routes";
+import { VendorMetaRoutes } from "../modules/MetaData/meta.routes";
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ const moduleRouters = [
   {
     path: "/order",
     route: OrderRoutes,
+  },
+  {
+    path: "/meta-data",
+    route: VendorMetaRoutes,
   },
 ];
 

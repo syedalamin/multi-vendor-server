@@ -36,6 +36,11 @@ router.patch(
   auth(UserRole.ADMIN, UserRole.VENDOR),
   OrderControllers.updateStatusByIdIntoDB
 );
+router.patch(
+  "/payment-status/:id",
+  auth(UserRole.ADMIN, UserRole.VENDOR),
+  OrderControllers.updatePaymentStatusByIdIntoDB
+);
 router.delete(
   "/:id",
   auth(UserRole.ADMIN, UserRole.VENDOR),

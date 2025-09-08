@@ -17,8 +17,9 @@ router.post(
   validateRequest(ProductValidation.productValidationSchema),
   ProductControllers.createDataIntoDB
 );
-router.post("/ids/", ProductControllers.getByIdsFromDB);
 router.get("/", ProductControllers.getAllDataFromDB);
+router.get("/my-vendor",auth(UserRole.VENDOR), ProductControllers.getAllMyDataFromDB);
+router.post("/ids/", ProductControllers.getByIdsFromDB);
 router.get("/:id", ProductControllers.getBySlugFromDB);
 router.get("/id/:id", ProductControllers.getByIdFromDB);
 router.get("/related/:id", ProductControllers.relatedProducts);

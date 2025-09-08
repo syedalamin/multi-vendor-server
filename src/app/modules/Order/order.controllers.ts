@@ -69,6 +69,16 @@ const updateStatusByIdIntoDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updatePaymentStatusByIdIntoDB = catchAsync(async (req, res) => {
+    const {id }= req.params;
+  const result = await OrderServices.updatePaymentStatusByIdIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Order payment is update successfully",
+    data: result,
+  });
+});
 const deleteByIdFromDB = catchAsync(async (req, res) => {
   const result = await OrderServices.deleteByIdFromDB();
 
@@ -86,6 +96,7 @@ export const OrderControllers = {
   updateStatusByIdIntoDB,
   deleteByIdFromDB,
   getMyDataFromDB,
-  getMyVendorDataFromDB
+  getMyVendorDataFromDB,
+  updatePaymentStatusByIdIntoDB
   
 };

@@ -5,6 +5,7 @@ import catchAsync from "../../../utils/share/catchAsync";
 import sendResponse from "../../../utils/share/sendResponse";
 import { productFilterAbleField } from "./product.constant";
 import { ProductServices } from "./product.services";
+import { JwtPayload } from "jsonwebtoken";
 
 const createDataIntoDB = catchAsync(async (req, res) => {
   const result = await ProductServices.createDataIntoDB(req);
@@ -24,6 +25,19 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: status.OK,
     message: "Product are retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+const getAllMyDataFromDB = catchAsync(async (req, res) => {
+  const user = req.user;
+  const filters = pick(req.query, productFilterAbleField);
+  const options = pick(req.query, paginationFilterableField);
+  const result = await ProductServices.getAllMyDataFromDB(filters, options, user as JwtPayload);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Vendor Product are retrieved successfully",
     meta: result.meta,
     data: result.data,
   });
@@ -111,5 +125,6 @@ export const ProductControllers = {
   softDeleteByIdFromDB,
   productRating,
   relatedProducts,
-  getByIdsFromDB
+  getByIdsFromDB,
+  getAllMyDataFromDB
 };
