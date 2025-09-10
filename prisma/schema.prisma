@@ -66,7 +66,8 @@ model Vendor {
   rating        Decimal  @default(0)
   averageRating Decimal  @default(0)
   contactNumber String
-  address       String
+  district      String
+  city          String
   isVerified    Boolean  @default(false)
   isBlocked     Boolean  @default(false)
   createdAt     DateTime @default(now())
@@ -121,6 +122,24 @@ model SubCategory {
   product    Product[]
 
   @@map("subCategory")
+}
+
+model District {
+  id   String @id @default(uuid())
+  name String  
+  city City[]
+
+  @@map("district")
+}
+
+model City {
+  id         String   @id @default(uuid())
+  name       String  
+  districtId String
+  district   District @relation(fields: [districtId], references: [id])
+
+
+  @@map("city")
 }
 
 model Product {
@@ -205,16 +224,16 @@ model Order {
 }
 
 model OrderItem {
-  id        String @id @default(uuid())
-  orderId   String
-  productId String
-  quantity  Int
+  id            String   @id @default(uuid())
+  orderId       String
+  productId     String
+  quantity      Int
   price         Decimal
   discountPrice Decimal  @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  orderItem Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  orderItem     Order    @relation(fields: [orderId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
 
   @@map("orderItem")
 }

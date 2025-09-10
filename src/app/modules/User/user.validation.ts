@@ -33,7 +33,10 @@ const vendorValidation = z.object({
       contactNumber: z
         .string({ message: "Contact Number is required" })
         .min(1, "Contact Number is required "),
-      address: z
+      district: z
+        .string({ message: "Shop Address is required" })
+        .min(1, "Address is required "),
+      city: z
         .string({ message: "Shop Address is required" })
         .min(1, "Address is required "),
     }),

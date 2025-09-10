@@ -9,6 +9,8 @@ import { CartRoutes } from "../modules/Cart/cart.routes";
 import { VendorRoutes } from "../modules/Vendor/vendor.routes";
 import { OrderRoutes } from "../modules/Order/order.routes";
 import { VendorMetaRoutes } from "../modules/MetaData/meta.routes";
+import { DistrictRoutes } from "../modules/District/district.routes";
+import { CityRoutes } from "../modules/City/city.routes";
 
 const router = express.Router();
 
@@ -32,6 +34,14 @@ const moduleRouters = [
   {
     path: "/category",
     route: CategoryRoutes,
+  },
+  {
+    path: "/district",
+    route: DistrictRoutes,
+  },
+  {
+    path: "/city",
+    route: CityRoutes,
   },
   {
     path: "/sub-category",
