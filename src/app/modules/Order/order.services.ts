@@ -1,6 +1,12 @@
 import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../utils/share/prisma";
-import { OrderPaymentStatus, OrderStatus, Prisma, UserRole, UserStatus } from "@prisma/client";
+import {
+  OrderPaymentStatus,
+  OrderStatus,
+  Prisma,
+  UserRole,
+  UserStatus,
+} from "@prisma/client";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
 import { IShippingInfoRequest } from "./order.interface";
@@ -263,6 +269,156 @@ import { IShippingInfoRequest } from "./order.interface";
 //   return result;
 // };
 
+// const checkout = async (
+//   user: JwtPayload,
+//   shippingInfo: IShippingInfoRequest,
+//   paymentType: any
+// ) => {
+  
+//   const userInfo = await prisma.user.findFirstOrThrow({
+//     where: { email: user?.email, status: UserStatus.ACTIVE },
+//     select: { id: true, email: true },
+//   });
+
+//   const result = await prisma.$transaction(async (tx) => {
+//     const cartItems = await tx.cart.findMany({
+//       where: { userId: userInfo.id },
+//       include: {
+//         product: {
+//           select: {
+//             id: true,
+//             sellerId: true,
+//             name: true,
+//             stock: true,
+//             price: true,
+//             discount: true,
+//           },
+//         },
+//       },
+//     });
+
+//     if (!cartItems.length) {
+//       throw new ApiError(status.BAD_REQUEST, "Cart is empty");
+//     }
+
+//     // group by vendor
+//     const vendorGroups: Record<string, typeof cartItems> = {};
+//     for (const item of cartItems) {
+//       const vendorId = item.product.sellerId;
+//       if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
+//       vendorGroups[vendorId].push(item);
+//     }
+
+//     const vendorOrders = [];
+
+//     for (const [vendorId, items] of Object.entries(vendorGroups)) {
+//       // validation
+//       for (const item of items) {
+//         if (item.quantity > item.product.stock) {
+//           throw new ApiError(
+//             status.BAD_REQUEST,
+//             `Only ${item.product.stock} items are in stock for ${item.product.name}`
+//           );
+//         }
+//       }
+
+//       // calculate per item discount
+//       const orderItemsData = items.map((cart) => {
+//         const price = Number(cart.product.price);
+//         const discountPercent = Number(cart.product.discount);
+
+//         const discountAmount =
+//           discountPercent > 0 ? (price * discountPercent) / 100 : 0;
+//         const totalPriceWithoutDiscount = price * cart.quantity;
+//         const totalDiscountAmount = discountAmount * cart.quantity;
+//         const totalPriceAfterDiscount =
+//           totalPriceWithoutDiscount - totalDiscountAmount;
+
+//         return {
+//           productId: cart.productId,
+//           quantity: cart.quantity,
+//           price,
+//           discountAmount,
+//           totalPriceAfterDiscount,
+//           totalDiscountAmount,
+//         };
+//       });
+//       const totalPrice = orderItemsData.reduce(
+//         (acc, item) => acc + item.price * item.quantity,
+//         0
+//       );
+//       const totalDiscount = orderItemsData.reduce(
+//         (acc, item) => acc + item.totalDiscountAmount,
+//         0
+//       );
+
+//       // const deliveryCharge =
+//       //   shippingInfo.districts.toLowerCase() !== "dhaka" ? 130 : 80;
+//       const deliveryCharge = shippingInfo.deliveryCharge;
+
+//       const finalAmount = totalPrice - totalDiscount + deliveryCharge;
+
+//       const order = await tx.order.create({
+//         data: {
+//           userId: userInfo.id,
+//           sellerId: vendorId,
+//           totalAmount: new Prisma.Decimal(finalAmount),
+//           paymentType,
+//           paymentStatus: "PENDING",
+//           status: "PENDING",
+//           shippingInfo,
+//           deliveryCharge: new Prisma.Decimal(deliveryCharge),
+//         },
+//       });
+
+//       // save order items
+//       await tx.orderItem.createMany({
+//         data: orderItemsData.map((item) => ({
+//           orderId: order.id,
+//           productId: item.productId,
+//           quantity: item.quantity,
+//           price: item.price,
+//           discountPrice: item.discountAmount,
+//         })),
+//       });
+
+//       // update stock
+//       for (const item of items) {
+//         await tx.product.update({
+//           where: { id: item.productId },
+//           data: { stock: { decrement: item.quantity } },
+//         });
+//       }
+
+//       vendorOrders.push({
+//         order,
+//         orderItems: orderItemsData.map((item, idx) => ({
+//           productId: item.productId,
+//           productName: items[idx].product.name,
+//           quantity: item.quantity,
+//           price: item.price,
+//           discountPrice: item.discountAmount,
+//         })),
+//       });
+//     }
+
+//     // clear cart
+//     await tx.cart.deleteMany({ where: { userId: userInfo.id } });
+
+//     return {
+//       mainOrderId: vendorOrders[0].order.id,
+//       totalVendors: vendorOrders.length,
+//       totalOrders: vendorOrders.map((o) => o.order.id),
+//       orders: vendorOrders,
+//     };
+//   });
+
+//   return result;
+// };
+
+
+
+
 const checkout = async (
   user: JwtPayload,
   shippingInfo: IShippingInfoRequest,
@@ -285,6 +441,7 @@ const checkout = async (
             stock: true,
             price: true,
             discount: true,
+            seller: { select: { vendor: { select: { district: true } } } },
           },
         },
       },
@@ -294,18 +451,18 @@ const checkout = async (
       throw new ApiError(status.BAD_REQUEST, "Cart is empty");
     }
 
-    // group by vendor
-    const vendorGroups: Record<string, typeof cartItems> = {};
+    // group by seller
+    const sellerGroups: Record<string, typeof cartItems> = {};
     for (const item of cartItems) {
-      const vendorId = item.product.sellerId;
-      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-      vendorGroups[vendorId].push(item);
+      const sellerId = item.product.sellerId;
+      if (!sellerGroups[sellerId]) sellerGroups[sellerId] = [];
+      sellerGroups[sellerId].push(item);
     }
 
-    const vendorOrders = [];
+    const orders: any[] = [];
 
-    for (const [vendorId, items] of Object.entries(vendorGroups)) {
-      // validation
+    for (const [sellerId, items] of Object.entries(sellerGroups)) {
+      // stock validation
       for (const item of items) {
         if (item.quantity > item.product.stock) {
           throw new ApiError(
@@ -315,63 +472,56 @@ const checkout = async (
         }
       }
 
-      // calculate per item discount
+      // per item discount & total calculation
+      let totalPrice = 0;
+      let totalDiscount = 0;
+
       const orderItemsData = items.map((cart) => {
         const price = Number(cart.product.price);
         const discountPercent = Number(cart.product.discount);
+        const discountAmount = discountPercent > 0 ? (price * discountPercent) / 100 : 0;
 
-        const discountAmount =
-          discountPercent > 0 ? (price * discountPercent) / 100 : 0; 
-        const totalPriceWithoutDiscount = price * cart.quantity; 
-        const totalDiscountAmount = discountAmount * cart.quantity; 
-        const totalPriceAfterDiscount =
-          totalPriceWithoutDiscount - totalDiscountAmount; 
+        const totalPriceWithoutDiscount = price * cart.quantity;
+        const totalDiscountAmount = discountAmount * cart.quantity;
+        const totalPriceAfterDiscount = totalPriceWithoutDiscount - totalDiscountAmount;
+
+        totalPrice += totalPriceWithoutDiscount;
+        totalDiscount += totalDiscountAmount;
 
         return {
           productId: cart.productId,
           quantity: cart.quantity,
-          price, 
-          discountAmount, 
-          totalPriceAfterDiscount,
-          totalDiscountAmount, 
+          price,
+          discountPrice: totalPriceAfterDiscount,
         };
       });
-      const totalPrice = orderItemsData.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0
-      );
-      const totalDiscount = orderItemsData.reduce(
-        (acc, item) => acc + item.totalDiscountAmount,
-        0
-      );
 
-      const deliveryCharge =
-        shippingInfo.districts.toLowerCase() !== "dhaka" ? 130 : 80;
+      // seller-wise delivery charge
+      const sellerDistrict = items[0].product.seller.vendor?.district || "";
+      const deliveryCharge = sellerDistrict === shippingInfo.districts ? 80 : 130;
 
       const finalAmount = totalPrice - totalDiscount + deliveryCharge;
 
+      // create order
       const order = await tx.order.create({
         data: {
           userId: userInfo.id,
-          sellerId: vendorId,
+          sellerId,
           totalAmount: new Prisma.Decimal(finalAmount),
           paymentType,
           paymentStatus: "PENDING",
           status: "PENDING",
           shippingInfo,
           deliveryCharge: new Prisma.Decimal(deliveryCharge),
+          orderItem: {
+            create: orderItemsData.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+              discountPrice: item.discountPrice,
+            })),
+          },
         },
-      });
-
-      // save order items
-      await tx.orderItem.createMany({
-        data: orderItemsData.map((item) => ({
-          orderId: order.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-          discountPrice: item.discountAmount,
-        })),
       });
 
       // update stock
@@ -382,14 +532,14 @@ const checkout = async (
         });
       }
 
-      vendorOrders.push({
+      orders.push({
         order,
-        orderItems: orderItemsData.map((item, idx) => ({
+        items: orderItemsData.map((item, idx) => ({
           productId: item.productId,
           productName: items[idx].product.name,
           quantity: item.quantity,
           price: item.price,
-          discountPrice: item.discountAmount,
+          discountPrice: item.discountPrice,
         })),
       });
     }
@@ -398,15 +548,18 @@ const checkout = async (
     await tx.cart.deleteMany({ where: { userId: userInfo.id } });
 
     return {
-      mainOrderId: vendorOrders[0].order.id,
-      totalVendors: vendorOrders.length,
-      totalOrders: vendorOrders.map((o) => o.order.id),
-      orders: vendorOrders,
+      mainOrderId: orders[0].order.id,
+      totalSellers: orders.length,
+      totalOrders: orders.map((o) => o.order.id),
+      orders,
     };
   });
 
   return result;
 };
+
+
+
 
 const getAllDataFromDB = async (user: JwtPayload) => {
   await prisma.user.findFirstOrThrow({
@@ -455,7 +608,7 @@ const getMyVendorDataFromDB = async (user: JwtPayload) => {
   });
   const isOrderExists = await prisma.order.findMany({
     where: {
-      sellerId: userInfo.id
+      sellerId: userInfo.id,
     },
     include: {
       orderItem: true,
@@ -464,7 +617,6 @@ const getMyVendorDataFromDB = async (user: JwtPayload) => {
 
   return isOrderExists;
 };
-
 
 const getMyDataFromDB = async (user: JwtPayload) => {
   const userInfo = await prisma.user.findFirstOrThrow({
@@ -583,7 +735,10 @@ const orderPaymentStatus = (current: string, payload: OrderPaymentStatus) => {
     throw new ApiError(status.CONFLICT, `Same status no update needed`);
   }
 
-  if (current === OrderPaymentStatus.FAILED || current === OrderPaymentStatus.PAID) {
+  if (
+    current === OrderPaymentStatus.FAILED ||
+    current === OrderPaymentStatus.PAID
+  ) {
     throw new ApiError(
       status.CONFLICT,
       `Order already ${current}, can't change `
@@ -592,11 +747,11 @@ const orderPaymentStatus = (current: string, payload: OrderPaymentStatus) => {
 
   if (
     current === OrderPaymentStatus.PENDING &&
-    (payload === OrderPaymentStatus.PAID || payload === OrderPaymentStatus.FAILED)
+    (payload === OrderPaymentStatus.PAID ||
+      payload === OrderPaymentStatus.FAILED)
   ) {
     return true;
   }
-
 };
 
 const updatePaymentStatusByIdIntoDB = async (
@@ -609,7 +764,7 @@ const updatePaymentStatusByIdIntoDB = async (
     },
     select: {
       id: true,
-      paymentStatus: true
+      paymentStatus: true,
     },
   });
 
@@ -640,5 +795,5 @@ export const OrderServices = {
   deleteByIdFromDB,
   getMyDataFromDB,
   getMyVendorDataFromDB,
-  updatePaymentStatusByIdIntoDB
+  updatePaymentStatusByIdIntoDB,
 };

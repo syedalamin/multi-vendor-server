@@ -33,6 +33,16 @@ const getByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getCityByDistrictIdFromDB = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await CityServices.getCityByDistrictIdFromDB(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "City is retrieved successfully",
+    data: result,
+  });
+});
 const updateByIdIntoDB = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await CityServices.updateByIdIntoDB(req, id);
@@ -61,4 +71,5 @@ export const CityControllers = {
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
+  getCityByDistrictIdFromDB
 };

@@ -18,7 +18,7 @@ const shippingInfoValidation = z.object({
     address: z.string().nonempty("Shipping Address is required"),
     postalCode: z.string(), // ৪ digit check
     phone: z.string(),
-
+  
     notes: z.string().optional(),
   }),
 });

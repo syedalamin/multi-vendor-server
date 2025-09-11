@@ -115,59 +115,77 @@ const getAllDataFromDB = async (user: JwtPayload) => {
 
   return cartInfo;
 };
+
 const getAllCartDataFromDB = async () => {
   const cartInfo = await prisma.cart.findMany({});
 
   return cartInfo;
 };
 
-const getShippingSummery = async (user: JwtPayload) => {
-  const userInfo = await prisma.user.findFirstOrThrow({
-    where: {
-      email: user?.email,
-      status: UserStatus.ACTIVE,
-    },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      status: true,
-    },
-  });
+// const getShippingSummery = async (user: JwtPayload) => {
+//   const userInfo = await prisma.user.findFirstOrThrow({
+//     where: {
+//       email: user?.email,
+//       status: UserStatus.ACTIVE,
+//     },
+//     select: {
+//       id: true,
+//       email: true,
+//       role: true,
+//       status: true,
+//     },
+//   });
 
-  if (!userInfo) {
-    throw new ApiError(status.NOT_FOUND, "User is not found");
-  }
+//   if (!userInfo) {
+//     throw new ApiError(status.NOT_FOUND, "User is not found");
+//   }
 
-  const cartList = await prisma.cart.findMany({
-    where: { userId: userInfo.id },
-    select: {
-      quantity: true,
-      price: true,
-      discountPrice: true,
-    },
-  });
+//   const cartList = await prisma.cart.findMany({
+//     where: { userId: userInfo.id },
+//     select: {
+//       quantity: true,
+//       price: true,
+//       discountPrice: true,
+//       product: {
+//         select: {
+//           id: true,
+//           sellerId: true,
+//         },
+//       },
+//     },
+//   });
 
-  const cartSummary = cartList.reduce(
-    (acc, item) => {
-      acc.totalItems += 1;
-      acc.totalQuantity += item.quantity;
+//   const cartSummary = cartList.reduce(
+//     (acc, item) => {
+//       acc.totalItems += 1;
+//       acc.totalQuantity += item.quantity;
 
-      if (Number(item.discountPrice) > 0) {
-        acc.totalDiscountPrice += Number(item.discountPrice);
-        acc.totalPrice += Number(item.price);
-      } else {
-        acc.totalDiscountPrice += Number(item.price);
-        acc.totalPrice += Number(item.price);
-      }
+//       if (Number(item.discountPrice) > 0) {
+//         acc.totalDiscountPrice += Number(item.discountPrice);
+//         acc.totalPrice += Number(item.price);
+//       } else {
+//         acc.totalDiscountPrice += Number(item.price);
+//         acc.totalPrice += Number(item.price);
+//       }
 
-      return acc;
-    },
-    { totalItems: 0, totalQuantity: 0, totalDiscountPrice: 0, totalPrice: 0 }
-  );
+//       acc.sellers.push({
+//         productId: item.product.id,
+//         sellerId: item.product.sellerId,
+//       });
 
-  return cartSummary;
-};
+//       return acc;
+//     },
+//     {
+//       totalItems: 0,
+//       totalQuantity: 0,
+//       totalDiscountPrice: 0,
+//       totalPrice: 0,
+//       sellers: [] as { productId: string; sellerId: string }[],
+//     }
+//   );
+
+//   return cartSummary;
+// };
 
 const getByIdFromDB = async (user: JwtPayload, id: string) => {
   const userInfo = await prisma.user.findFirstOrThrow({
@@ -301,6 +319,92 @@ const deleteByIdFromDB = async (user: JwtPayload, id: string) => {
   });
 
   return cartInfo;
+};
+
+const getShippingSummery = async (user: JwtPayload) => {
+  const userInfo = await prisma.user.findFirstOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  if (!userInfo) {
+    throw new ApiError(status.NOT_FOUND, "User is not found");
+  }
+
+  const cartList = await prisma.cart.findMany({
+    where: { userId: userInfo.id },
+    select: {
+      quantity: true,
+      price: true,
+      discountPrice: true,
+      product: {
+        select: {
+          id: true,
+          name: true,
+          seller: {
+            select: {
+              email: true,
+              vendor: {
+                select: {
+                  district: true,
+                  city: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const cartSummary = cartList.reduce(
+    (acc, item) => {
+      acc.totalItems += 1;
+      acc.totalQuantity += item.quantity;
+
+      if (Number(item.discountPrice) > 0) {
+        acc.totalDiscountPrice += Number(item.discountPrice);
+        acc.totalPrice += Number(item.price);
+      } else {
+        acc.totalDiscountPrice += Number(item.price);
+        acc.totalPrice += Number(item.price);
+      }
+
+      const sellerInfo = item.product.seller;
+      acc.sellers.push({
+        email: sellerInfo.email,
+        district: sellerInfo.vendor?.district || null,
+        city: sellerInfo.vendor?.city || null,
+      });
+
+      return acc;
+    },
+    {
+      totalItems: 0,
+      totalQuantity: 0,
+      totalDiscountPrice: 0,
+      totalPrice: 0,
+      sellers: [] as {
+        email: string;
+        district: string | null;
+        city: string | null;
+      }[],
+    }
+  );
+ 
+  const uniqueSellers = new Set(cartSummary.sellers.map((s) => s.email));
+  return {
+    ...cartSummary,
+    sellerCount: uniqueSellers.size,
+  };
 };
 
 export const CartServices = {

@@ -19,6 +19,7 @@ router.post(
 router.get("/", CityControllers.getAllCityFromDB);
 
 router.get("/:id", CityControllers.getByIdFromDB);
+router.get("/city/:id", CityControllers.getCityByDistrictIdFromDB);
 router.patch(
   "/:id",
 

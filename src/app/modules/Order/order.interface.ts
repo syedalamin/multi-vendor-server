@@ -5,4 +5,5 @@ export type IShippingInfoRequest = {
   postalCode: string;
   phone: string;
   notes?: string;
+ 
 };

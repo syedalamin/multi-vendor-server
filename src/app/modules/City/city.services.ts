@@ -36,6 +36,17 @@ const getAllCityFromDB = async () => {
   return results;
 };
 
+const getCityByDistrictIdFromDB = async (districtId: string) => {
+  const result = await prisma.city.findMany({
+    where: {
+      districtId,
+    },
+  });
+
+  return result;
+};
+
+
 const getByIdFromDB = async (id: string) => {
   const result = await prisma.city.findUnique({
     where: {
@@ -97,5 +108,6 @@ export const CityServices = {
   getAllCityFromDB,
   getByIdFromDB,
   deleteByIdFromDB,
-  updateByIdIntoDB
+  updateByIdIntoDB,
+  getCityByDistrictIdFromDB
 };
