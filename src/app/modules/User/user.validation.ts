@@ -57,7 +57,7 @@ const customerValidation = z.object({
         .min(2, { message: "Last Name must be 2 characters" })
         .max(20, { message: "First Name must be at most 20 characters" }),
       email: z.email(),
-      contactNumber: z.string(),
+      contactNumber: z.string().optional(),
     }),
   }),
 });
