@@ -8,7 +8,7 @@ const seedAdmin = async () => {
   try {
     const isUserExist = await prisma.admin.findFirst({
       where: {
-        email: "syedalamin@gmail.com",
+        email: "trusty@gmail.com",
       },
     });
 
@@ -16,10 +16,10 @@ const seedAdmin = async () => {
       throw new ApiError(status.CONFLICT, "User is already exists");
     }
 
-    const hashedPassword: string = await bcrypt.hash("syedalamin@gmail", 12);
+    const hashedPassword: string = await bcrypt.hash("trusty@gmail.com", 12);
 
     const userData = {
-      email: "syedalamin@gmail.com",
+      email: "trusty@gmail.com",
       password: hashedPassword,
       role: UserRole.ADMIN,
     };
