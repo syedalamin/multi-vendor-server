@@ -1,7 +1,8 @@
 import { Request } from "express";
-import prisma from "../../../utils/share/prisma";
+ 
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
+import prisma from "../../../utils/share/prisma";
 
 const createDistrictIntoDB = async (req: Request) => {
   const { name } = req.body;
@@ -10,12 +11,13 @@ const createDistrictIntoDB = async (req: Request) => {
       name,
     },
   });
-
+  
   if (isExistsName) {
-    throw new ApiError(status.CONFLICT, "District is already exists");
+    throw new ApiError(status.FOUND, "District is already exists");
   }
-
+  
   const result = await prisma.district.create({ data: { name } });
+ 
 
   return result;
 };

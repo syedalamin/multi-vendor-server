@@ -129,7 +129,7 @@ model District {
   name String  
   city City[]
 
-  @@map("district")
+  @@map("districts")
 }
 
 model City {
@@ -139,7 +139,7 @@ model City {
   district   District @relation(fields: [districtId], references: [id])
 
 
-  @@map("city")
+  @@map("cities")
 }
 
 model Product {
