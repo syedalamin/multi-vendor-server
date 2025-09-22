@@ -32,6 +32,7 @@ model User {
   rating             Rating[]
   order              Order[]     @relation("CustomerOrders")
   sellerOrders       Order[]     @relation("SellerOrders")
+  Invoice            Invoice[]
 
   @@map("users")
 }
@@ -80,11 +81,11 @@ model Vendor {
 
 model Customer {
   id            String   @id @default(uuid())
-  firstName     String
-  lastName      String
+  firstName     String?
+  lastName      String?
   email         String   @unique
   profilePhoto  String?
-  contactNumber String
+  contactNumber String?
   address       String?
   gender        Gender?
   isDeleted     Boolean  @default(false)
@@ -126,7 +127,7 @@ model SubCategory {
 
 model District {
   id   String @id @default(uuid())
-  name String  
+  name String
   city City[]
 
   @@map("districts")
@@ -134,10 +135,9 @@ model District {
 
 model City {
   id         String   @id @default(uuid())
-  name       String  
+  name       String
   districtId String
   district   District @relation(fields: [districtId], references: [id])
-
 
   @@map("cities")
 }
@@ -236,6 +236,38 @@ model OrderItem {
   product       Product  @relation(fields: [productId], references: [id])
 
   @@map("orderItem")
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  orderIds       String[]
+  sellerIds      String[]
+  totalAmount    Decimal
+  deliveryCharge Decimal
+  subTotal       Decimal    
+  createdAtList  DateTime[]
+  shippingInfo   Json
+  paymentType    String
+  orderItems     InvoiceItem[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("invoice")
+}
+
+model InvoiceItem {
+  id            String  @id @default(uuid())
+  invoiceId     String
+  invoice       Invoice @relation(fields: [invoiceId], references: [id])
+  productId     String
+  productName   String
+  quantity      Int
+  price         Decimal
+  discountPrice Decimal
+
+  @@map("invoiceItem")
 }
 
 enum OrderPaymentStatus {

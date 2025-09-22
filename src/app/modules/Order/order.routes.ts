@@ -31,6 +31,11 @@ router.get(
   auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
   OrderControllers.getByIdFromDB
 );
+router.post(
+  "/ids",
+  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
+  OrderControllers.getByIdsFromDB
+);
 router.patch(
   "/status/:id",
   auth(UserRole.ADMIN, UserRole.VENDOR),

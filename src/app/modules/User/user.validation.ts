@@ -43,21 +43,29 @@ const vendorValidation = z.object({
   }),
 });
 
+// const customerValidation = z.object({
+//   body: z.object({
+//     password: z.string(),
+//     customer: z.object({
+//       firstName: z
+//         .string()
+//         .min(2, { message: "First Name must be 2 characters" })
+//         .max(20, { message: "First Name must be at most 20 characters" }),
+//       middleName: z.string().optional(),
+//       lastName: z
+//         .string()
+//         .min(2, { message: "Last Name must be 2 characters" })
+//         .max(20, { message: "First Name must be at most 20 characters" }),
+//       email: z.email(),
+//       contactNumber: z.string().optional(),
+//     }),
+//   }),
+// });
 const customerValidation = z.object({
   body: z.object({
     password: z.string(),
     customer: z.object({
-      firstName: z
-        .string()
-        .min(2, { message: "First Name must be 2 characters" })
-        .max(20, { message: "First Name must be at most 20 characters" }),
-      middleName: z.string().optional(),
-      lastName: z
-        .string()
-        .min(2, { message: "Last Name must be 2 characters" })
-        .max(20, { message: "First Name must be at most 20 characters" }),
       email: z.email(),
-      contactNumber: z.string().optional(),
     }),
   }),
 });

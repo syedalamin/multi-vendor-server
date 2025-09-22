@@ -1,4 +1,4 @@
-import { Product, ProductStatus, UserRole } from "@prisma/client";
+import {   ProductStatus, UserRole } from "@prisma/client";
 import { Request } from "express";
 import status from "http-status";
 import { ICloudinaryUploadResponse } from "../../../interface/file";

@@ -59,6 +59,22 @@ const getByIdFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+
+const getByIdsFromDB = catchAsync(async (req, res) => {
+  const user = req.user;
+  const {ids} = req.body;
+  const result = await OrderServices.getByIdsFromDB(user as JwtPayload, ids);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Order are retrieved successfully",
+    data: result,
+  });
+});
+
+
+
 const updateStatusByIdIntoDB = catchAsync(async (req, res) => {
     const {id }= req.params;
   const result = await OrderServices.updateStatusByIdIntoDB(id, req.body);
@@ -93,6 +109,7 @@ export const OrderControllers = {
   createDataIntoDB,
   getAllDataFromDB,
   getByIdFromDB,
+  getByIdsFromDB,
   updateStatusByIdIntoDB,
   deleteByIdFromDB,
   getMyDataFromDB,
