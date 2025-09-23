@@ -21,175 +21,182 @@ const checkout = async (
     select: { id: true, email: true },
   });
 
-  const result = await prisma.$transaction(async (tx) => {
-    const cartItems = await tx.cart.findMany({
-      where: { userId: userInfo.id },
-      include: {
-        product: {
-          select: {
-            id: true,
-            sellerId: true,
-            name: true,
-            stock: true,
-            price: true,
-            discount: true,
-            seller: { select: { vendor: { select: { district: true } } } },
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const cartItems = await tx.cart.findMany({
+        where: { userId: userInfo.id },
+        include: {
+          product: {
+            select: {
+              id: true,
+              sellerId: true,
+              name: true,
+              stock: true,
+              price: true,
+              discount: true,
+              seller: { select: { vendor: { select: { district: true } } } },
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!cartItems.length) {
-      throw new ApiError(status.BAD_REQUEST, "Cart is empty");
-    }
-
-    // group by seller
-    const sellerGroups: Record<string, typeof cartItems> = {};
-
-    for (const item of cartItems) {
-      const sellerId = item.product.sellerId;
-      if (!sellerGroups[sellerId]) sellerGroups[sellerId] = [];
-      sellerGroups[sellerId].push(item);
-    }
-
-    const orders: any[] = [];
-
-    for (const [sellerId, items] of Object.entries(sellerGroups)) {
-      // stock validation
-      for (const item of items) {
-        if (item.quantity > item.product.stock) {
-          throw new ApiError(
-            status.BAD_REQUEST,
-            `Only ${item.product.stock} items are in stock for ${item.product.name}`
-          );
-        }
+      if (!cartItems.length) {
+        throw new ApiError(status.BAD_REQUEST, "Cart is empty");
       }
 
-      // per item discount & total calculation
-      let totalPrice = 0;
-      let totalDiscount = 0;
+      // group by seller
+      const sellerGroups: Record<string, typeof cartItems> = {};
 
-      const orderItemsData = items.map((cart) => {
-        const price = Number(cart.product.price);
-        const discountPercent = Number(cart.product.discount);
-        const discountAmount =
-          discountPercent > 0 ? (price * discountPercent) / 100 : 0;
+      for (const item of cartItems) {
+        const sellerId = item.product.sellerId;
+        if (!sellerGroups[sellerId]) sellerGroups[sellerId] = [];
+        sellerGroups[sellerId].push(item);
+      }
 
-        const totalPriceWithoutDiscount = price * cart.quantity;
-        const totalDiscountAmount = discountAmount * cart.quantity;
-        const totalPriceAfterDiscount =
-          totalPriceWithoutDiscount - totalDiscountAmount;
+      const orders: any[] = [];
 
-        totalPrice += totalPriceWithoutDiscount;
-        totalDiscount += totalDiscountAmount;
+      for (const [sellerId, items] of Object.entries(sellerGroups)) {
+        // stock validation
+        for (const item of items) {
+          if (item.quantity > item.product.stock) {
+            throw new ApiError(
+              status.BAD_REQUEST,
+              `Only ${item.product.stock} items are in stock for ${item.product.name}`
+            );
+          }
+        }
 
-        return {
-          productId: cart.productId,
-          quantity: cart.quantity,
-          price,
-          discountPrice: totalPriceAfterDiscount,
-        };
-      });
+        // per item discount & total calculation
+        let totalPrice = 0;
+        let totalDiscount = 0;
 
-      // seller-wise delivery charge
-      const sellerDistrict = items[0].product.seller.vendor?.district || "";
-      const deliveryCharge =
-        sellerDistrict === shippingInfo.districts ? 80 : 130;
+        const orderItemsData = items.map((cart) => {
+          const price = Number(cart.product.price);
+          const discountPercent = Number(cart.product.discount);
+          const discountAmount =
+            discountPercent > 0 ? (price * discountPercent) / 100 : 0;
 
-      const finalAmount = totalPrice - totalDiscount + deliveryCharge;
+          const totalPriceWithoutDiscount = price * cart.quantity;
+          const totalDiscountAmount = discountAmount * cart.quantity;
+          const totalPriceAfterDiscount =
+            totalPriceWithoutDiscount - totalDiscountAmount;
 
-      // create order
-      const order = await tx.order.create({
-        data: {
-          userId: userInfo.id,
-          sellerId,
-          totalAmount: new Prisma.Decimal(finalAmount),
-          paymentType,
-          paymentStatus: "PENDING",
-          status: "PENDING",
-          shippingInfo,
-          deliveryCharge: new Prisma.Decimal(deliveryCharge),
-          orderItem: {
-            create: orderItemsData.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price,
-              discountPrice: item.discountPrice,
-            })),
+          totalPrice += totalPriceWithoutDiscount;
+          totalDiscount += totalDiscountAmount;
+
+          return {
+            productId: cart.productId,
+            quantity: cart.quantity,
+            price,
+            discountPrice: totalPriceAfterDiscount,
+          };
+        });
+
+        // seller-wise delivery charge
+        const sellerDistrict = items[0].product.seller.vendor?.district || "";
+        const deliveryCharge =
+          sellerDistrict === shippingInfo.districts ? 80 : 130;
+
+        const finalAmount = totalPrice - totalDiscount + deliveryCharge;
+
+        // create order
+        const order = await tx.order.create({
+          data: {
+            userId: userInfo.id,
+            sellerId,
+            totalAmount: new Prisma.Decimal(finalAmount),
+            paymentType,
+            paymentStatus: "PENDING",
+            status: "PENDING",
+            shippingInfo,
+            deliveryCharge: new Prisma.Decimal(deliveryCharge),
+            orderItem: {
+              create: orderItemsData.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+                discountPrice: item.discountPrice,
+              })),
+            },
           },
-        },
-      });
+        });
 
-      // update stock
-      for (const item of items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
+        // update stock
+        await Promise.all(
+          items.map((item) =>
+            tx.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: item.quantity } },
+            })
+          )
+        );
+
+        orders.push({
+          order,
+          items: orderItemsData.map((item, idx) => ({
+            productId: item.productId,
+            productName: items[idx].product.name,
+            quantity: item.quantity,
+            price: item.price,
+            discountPrice: item.discountPrice,
+          })),
         });
       }
 
-      orders.push({
-        order,
-        items: orderItemsData.map((item, idx) => ({
-          productId: item.productId,
-          productName: items[idx].product.name,
-          quantity: item.quantity,
-          price: item.price,
-          discountPrice: item.discountPrice,
-        })),
-      });
-    }
+      // clear cart
+      await tx.cart.deleteMany({ where: { userId: userInfo.id } });
 
-    // clear cart
-    await tx.cart.deleteMany({ where: { userId: userInfo.id } });
+      // create invoice
+      const totalAmount = new Prisma.Decimal(
+        orders.reduce((sum, o) => sum + Number(o.order.totalAmount), 0)
+      );
 
-    // create invoice  
-    const totalAmount = new Prisma.Decimal(
-      orders.reduce((sum, o) => sum + Number(o.order.totalAmount), 0)
-    );
+      const deliveryCharge = new Prisma.Decimal(
+        orders.reduce((sum, o) => sum + Number(o.order.deliveryCharge), 0)
+      );
 
-    const deliveryCharge = new Prisma.Decimal(
-      orders.reduce((sum, o) => sum + Number(o.order.deliveryCharge), 0)
-    );
+      const subTotal = totalAmount.minus(deliveryCharge);
 
-    const subTotal = totalAmount.minus(deliveryCharge); 
-
-    const invoice = await tx.invoice.create({
-      data: {
-        userId: userInfo.id,
-        orderIds: orders.map((o) => o.order.id),
-        sellerIds: orders.map((o) => o.order.sellerId),
-        totalAmount,
-        deliveryCharge,
-        subTotal,  
-        createdAtList: orders.map((o) => o.order.createdAt),
-        shippingInfo,
-        paymentType,
-        orderItems: {
-          create: orders.flatMap((o) =>
-            o.items.map((item: any) => ({
-              productId: item.productId,
-              productName: item.productName,
-              quantity: item.quantity,
-              price: new Prisma.Decimal(item.price),
-              discountPrice: new Prisma.Decimal(item.discountPrice),
-            }))
-          ),
+      const invoice = await tx.invoice.create({
+        data: {
+          userId: userInfo.id,
+          orderIds: orders.map((o) => o.order.id),
+          sellerIds: orders.map((o) => o.order.sellerId),
+          totalAmount,
+          deliveryCharge,
+          subTotal,
+          createdAtList: orders.map((o) => o.order.createdAt),
+          shippingInfo,
+          paymentType,
+          orderItems: {
+            create: orders.flatMap((o) =>
+              o.items.map((item: any) => ({
+                productId: item.productId,
+                productName: item.productName,
+                quantity: item.quantity,
+                price: new Prisma.Decimal(item.price),
+                discountPrice: new Prisma.Decimal(item.discountPrice),
+              }))
+            ),
+          },
         },
-      },
-      include: {
-        orderItems: true,
-      },
-    });
+        include: {
+          orderItems: true,
+        },
+      });
 
-    return {
-      mainOrderId: orders[0].order.id,
-      totalSellers: orders.length,
-      totalOrders: orders.map((o) => o.order.id),
-      orders,
-      invoice
-    };
-  });
+      return {
+        mainOrderId: orders[0].order.id,
+        totalSellers: orders.length,
+        totalOrders: orders.map((o) => o.order.id),
+        orders,
+        invoice,
+      };
+    },
+    {
+      timeout: 20000,
+    }
+  );
 
   return result;
 };

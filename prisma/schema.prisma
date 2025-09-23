@@ -32,7 +32,7 @@ model User {
   rating             Rating[]
   order              Order[]     @relation("CustomerOrders")
   sellerOrders       Order[]     @relation("SellerOrders")
-  Invoice            Invoice[]
+  invoice            Invoice[]
 
   @@map("users")
 }
@@ -246,7 +246,7 @@ model Invoice {
   sellerIds      String[]
   totalAmount    Decimal
   deliveryCharge Decimal
-  subTotal       Decimal    
+  subTotal       Decimal
   createdAtList  DateTime[]
   shippingInfo   Json
   paymentType    String
@@ -269,6 +269,38 @@ model InvoiceItem {
 
   @@map("invoiceItem")
 }
+
+// model SellerInvoice {
+//   id             String              @id @default(uuid())
+//   orderId        String
+//   sellerId       String
+//   userId         String
+//   user           User                @relation(fields: [userId], references: [id])
+//   order          Order               @relation(fields: [orderId], references: [id])
+//   totalAmount    Decimal
+//   deliveryCharge Decimal
+//   subTotal       Decimal
+//   shippingInfo   Json
+//   paymentType    String
+//   orderItems     SellerInvoiceItem[]
+//   createdAt      DateTime            @default(now())
+//   updatedAt      DateTime            @updatedAt
+
+//   @@map("sellerInvoice")
+// }
+
+// model SellerInvoiceItem {
+//   id              String        @id @default(uuid())
+//   sellerInvoiceId String
+//   sellerInvoice   SellerInvoice @relation(fields: [sellerInvoiceId], references: [id])
+//   productId       String
+//   productName     String
+//   quantity        Int
+//   price           Decimal
+//   discountPrice   Decimal
+
+//   @@map("sellerInvoiceItem")
+// }
 
 enum OrderPaymentStatus {
   PENDING
