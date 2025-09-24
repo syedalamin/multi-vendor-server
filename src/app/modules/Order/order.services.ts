@@ -87,6 +87,7 @@ const checkout = async (
           return {
             productId: cart.productId,
             quantity: cart.quantity,
+            productImage: cart.productImage,
             price,
             discountPrice: totalPriceAfterDiscount,
           };
@@ -114,6 +115,7 @@ const checkout = async (
               create: orderItemsData.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
+                productImage: item.productImage,
                 price: item.price,
                 discountPrice: item.discountPrice,
               })),
@@ -174,6 +176,7 @@ const checkout = async (
                 productId: item.productId,
                 productName: item.productName,
                 quantity: item.quantity,
+                productImage: item.productImage,
                 price: new Prisma.Decimal(item.price),
                 discountPrice: new Prisma.Decimal(item.discountPrice),
               }))

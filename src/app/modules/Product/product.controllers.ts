@@ -95,16 +95,7 @@ const softDeleteByIdFromDB = catchAsync(async (req, res) => {
   });
 });
 
-const productRating = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await ProductServices.productRating(id, req);
 
-  sendResponse(res, {
-    statusCode: status.OK,
-    message: "Product Rating is updated successfully",
-    data: result,
-  });
-});
 const relatedProducts = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await ProductServices.relatedProducts(id);
@@ -123,7 +114,7 @@ export const ProductControllers = {
   getByIdFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
-  productRating,
+ 
   relatedProducts,
   getByIdsFromDB,
   getAllMyDataFromDB

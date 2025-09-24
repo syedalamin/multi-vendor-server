@@ -184,7 +184,6 @@ model Cart {
   id        String @id @default(uuid())
   userId    String
   productId String
-
   productName     String
   productImage    String
   quantity        Int
@@ -229,6 +228,7 @@ model OrderItem {
   productId     String
   quantity      Int
   price         Decimal
+  productImage  String  
   discountPrice Decimal  @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -262,6 +262,7 @@ model InvoiceItem {
   invoiceId     String
   invoice       Invoice @relation(fields: [invoiceId], references: [id])
   productId     String
+  productImage String  
   productName   String
   quantity      Int
   price         Decimal

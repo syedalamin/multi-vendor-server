@@ -45,6 +45,9 @@ const getLastDataFromDB = async (user: JwtPayload) => {
     orderBy: {
       createdAt: "desc",
     },
+    include:{
+      orderItems: true,
+    }
   });
 
   return isInvoiceExists;

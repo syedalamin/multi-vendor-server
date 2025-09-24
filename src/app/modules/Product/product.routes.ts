@@ -35,10 +35,6 @@ router.delete(
   auth(UserRole.ADMIN, UserRole.VENDOR),
   ProductControllers.softDeleteByIdFromDB
 );
-router.patch(
-  "/:id/rating",
-  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
-  ProductControllers.productRating
-);
+
 
 export const ProductRoutes = router;
