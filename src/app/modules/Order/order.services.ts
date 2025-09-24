@@ -138,6 +138,7 @@ const checkout = async (
           items: orderItemsData.map((item, idx) => ({
             productId: item.productId,
             productName: items[idx].product.name,
+            productImage: items[idx].productImage,
             quantity: item.quantity,
             price: item.price,
             discountPrice: item.discountPrice,
