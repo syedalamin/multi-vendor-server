@@ -4,6 +4,7 @@ import { Routers } from "./app/routers";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./utils/notFound";
 import cookieParser from "cookie-parser";
+import ApiError from "./utils/share/apiError";
 
 const app = express();
 
@@ -28,8 +29,12 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-//! error
-app.use(globalErrorHandler);
+
+
 //! not found path
 app.use(notFound);
+
+//! error
+app.use(globalErrorHandler);
+
 export default app;

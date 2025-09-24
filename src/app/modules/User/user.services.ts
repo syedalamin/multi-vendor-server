@@ -26,7 +26,7 @@ const createAdmin = async (req: Request): Promise<Admin> => {
   });
 
   if (isUserExist) {
-    throw new ApiError(status.CONFLICT, "User is already exists");
+    throw new ApiError(status.CONFLICT, "User is already exists ");
   }
 
   if (req.file) {
@@ -57,6 +57,8 @@ const createAdmin = async (req: Request): Promise<Admin> => {
 
   return result;
 };
+
+
 
 const createVendor = async (req: Request) => {
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -129,6 +131,7 @@ const createVendor = async (req: Request) => {
 
   return result;
 };
+
 const createCustomer = async (req: Request) => {
   const isUserExist = await prisma.customer.findFirst({
     where: {
