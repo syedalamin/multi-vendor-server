@@ -125,12 +125,25 @@ const checkout = async (
 
         // update stock
         await Promise.all(
-          items.map((item) =>
-            tx.product.update({
+          items.map(async (item) => {
+            const product = await tx.product.findUnique({
               where: { id: item.productId },
-              data: { stock: { decrement: item.quantity } },
-            })
-          )
+              select: { stock: true },
+            });
+
+            if (!product)
+              throw new Error(`Product not found: ${item.productId}`);
+
+            const newStock = product.stock - item.quantity;
+
+            await tx.product.update({
+              where: { id: item.productId },
+              data: {
+                stock: { decrement: item.quantity },
+                status: newStock <= 0 ? "OUT_OF_STOCK" : undefined,
+              },
+            });
+          })
         );
 
         orders.push({

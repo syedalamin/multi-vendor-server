@@ -130,7 +130,8 @@ const changePassword = async (
 };
 
 const forgetPassword = async (payload: { email: string }) => {
-  const userData = await prisma.user.findFirstOrThrow({
+ 
+  const userData = await prisma.user.findFirst({
     where: {
       email: payload.email,
       status: UserStatus.ACTIVE,
@@ -138,6 +139,7 @@ const forgetPassword = async (payload: { email: string }) => {
     include: {
       admin: true,
       customer: true,
+      vendor: true,
     },
   });
 
@@ -159,40 +161,45 @@ const forgetPassword = async (payload: { email: string }) => {
     config.sendMail.reset_pass_link +
     `?userId=${userData.id}&token=${accessToken}`;
 
-  return {
-    accessToken,
-  };
-  //! it will be solved
-  // await sendToEmail(
-  //   userData.email,
-  //   `
-  //   <div style="font-family: Arial, sans-serif; color: #333;">
-  //     <p>Dear ${userData.admin?.name || "User"},</p>
+  // return {
+  //   accessToken,
+  //   resetPassLink
+  // };
 
-  //     <p>We received a request to reset your password. To proceed, please click the button below:</p>
+  await sendToEmail(
+    userData.email,
+    `
+    <div style="font-family: Arial, sans-serif; color: #333;">
+      <p>Dear ${
+        (userData?.admin?.firstName,
+        userData?.admin?.lastName || userData?.customer?.firstName,
+        userData?.customer?.lastName || userData?.vendor?.shopName || "User")
+      },</p>
 
-  //     <p style="margin: 20px 0;">
-  //       <a href="${resetPassLink}" style="text-decoration: none;">
-  //         <button style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
-  //           Reset Password
-  //         </button>
-  //       </a>
-  //     </p>
+      <p>We received a request to reset your password. To proceed, please click the button below:</p>
 
-  //     <p>If you did not request this, you can safely ignore this email. Your password will remain unchanged.</p>
+      <p style="margin: 20px 0;">
+        <a href="${resetPassLink}" style="text-decoration: none;">
+          <button style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Reset Password
+          </button>
+        </a>
+      </p>
 
-  //     <p>Best regards,<br/>Team Chotto Haat</p>
+      <p>If you did not request this, you can safely ignore this email. Your password will remain unchanged.</p>
 
-  //     <hr style="margin-top: 30px;" />
-  //     <small style="color: #888;">This is an automated message from Chotto Haat. Please do not reply directly to this email.</small>
-  //   </div>
-  // `
-  // );
+      <p>Best regards,<br/>Team Trusty Shop</p>
+
+      <hr style="margin-top: 30px;" />
+      <small style="color: #888;">This is an automated message from Trusty Shop. Please do not reply directly to this email.</small>
+    </div>
+  `
+  );
 };
 
 const resetPassword = async (
-  token: string,
-  payload: { id: string; newPassword: string }
+ 
+  payload: { id: string; newPassword: string , token: string,}
 ) => {
   const userData = await prisma.user.findFirstOrThrow({
     where: {
@@ -205,7 +212,7 @@ const resetPassword = async (
     throw new ApiError(status.UNAUTHORIZED, "You are not authorized");
   }
   const verifiedUser = Token.verifyToken(
-    token,
+    payload.token,
     config.jwt.reset_Token as Secret
   );
   if (!verifiedUser) {

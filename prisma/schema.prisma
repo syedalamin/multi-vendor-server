@@ -168,7 +168,7 @@ model Product {
 
 model Rating {
   id        String   @id @default(uuid())
-  value     Int
+  value     Float 
   review    String
   userId    String
   productId String

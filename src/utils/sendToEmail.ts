@@ -3,7 +3,7 @@ import config from "../config";
 
 const sendToEmail = async (email: string, html: string) => {
   const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
@@ -12,13 +12,11 @@ const sendToEmail = async (email: string, html: string) => {
     },
   });
 
-  const info = await transporter.sendMail({
-    from: '"Chotto Haat" <chottohaat@gmail.com>',
+  await transporter.sendMail({
+    from: '"Trusty Shop" <trustyshop@gmail.com>',
     to: email,
     subject: "Reset Password Link",
-    html, // HTML body
+    html,
   });
-
-  console.log("Message sent:", info.messageId);
 };
 export default sendToEmail;

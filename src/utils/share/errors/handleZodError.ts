@@ -8,7 +8,7 @@ const handleZodError = (err: ZodError): TGenericErrorResponse => {
       message: issue?.message,
     };
   });
-  console.log(errorSources)
+
   const statusCode = 400;
   return {
     statusCode,
