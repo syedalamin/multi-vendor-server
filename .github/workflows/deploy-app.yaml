@@ -9,7 +9,6 @@ jobs:
     steps:
       - name: print working directory
         run: |
-         pwd
-         ls -a
-         echo $GITHUB_WORKSPACE
+         node -v
+         git --version
 
