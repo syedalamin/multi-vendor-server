@@ -4,7 +4,7 @@ import { Routers } from "./app/routers";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./utils/notFound";
 import cookieParser from "cookie-parser";
-import ApiError from "./utils/share/apiError";
+
 
 const app = express();
 
@@ -12,9 +12,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "http://192.168.0.102:3000",
-      "https://multi-vendor-five.vercel.app",
+      "http://localhost:3000"
     ],
     credentials: true,
   })
