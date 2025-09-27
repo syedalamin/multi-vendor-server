@@ -14,3 +14,7 @@ jobs:
           node-version: 21.4.0
       - name: check node version
         run: node -v
+      - name: install dependencies
+        run: npm install -frozen-lockfile
+      - name: run the code
+        run: npm run dev
