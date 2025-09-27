@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CartRoutes = void 0;
+const client_1 = require("@prisma/client");
+const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const cart_controllers_1 = require("./cart.controllers");
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const cart_validation_1 = require("./cart.validation");
+const router = express_1.default.Router();
+router.post("/create", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), (0, validateRequest_1.default)(cart_validation_1.CartValidation.cartCreateValidation), cart_controllers_1.CartControllers.createDataIntoDB);
+router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), cart_controllers_1.CartControllers.getAllDataFromDB);
+router.get("/all-cart", (0, auth_1.default)(client_1.UserRole.ADMIN), cart_controllers_1.CartControllers.getAllCartDataFromDB);
+router.get("/cart-total", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), cart_controllers_1.CartControllers.getShippingSummery);
+router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), cart_controllers_1.CartControllers.getByIdFromDB);
+router.patch("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), (0, validateRequest_1.default)(cart_validation_1.CartValidation.cartUpdateValidation), cart_controllers_1.CartControllers.updateByIdIntoDB);
+router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), cart_controllers_1.CartControllers.deleteByIdFromDB);
+exports.CartRoutes = router;

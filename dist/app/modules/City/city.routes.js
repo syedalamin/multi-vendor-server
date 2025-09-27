@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CityRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const client_1 = require("@prisma/client");
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const city_validation_1 = require("./city.validation");
+const city_controllers_1 = require("./city.controllers");
+const router = express_1.default.Router();
+router.post("/create", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validateRequest_1.default)(city_validation_1.CityValidations.cityValidation), city_controllers_1.CityControllers.createCityIntoDB);
+router.get("/", city_controllers_1.CityControllers.getAllCityFromDB);
+router.get("/:id", city_controllers_1.CityControllers.getByIdFromDB);
+router.get("/city/:id", city_controllers_1.CityControllers.getCityByDistrictIdFromDB);
+router.patch("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), (0, validateRequest_1.default)(city_validation_1.CityValidations.updateCityValidation), city_controllers_1.CityControllers.updateByIdIntoDB);
+router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), city_controllers_1.CityControllers.deleteByIdFromDB);
+exports.CityRoutes = router;

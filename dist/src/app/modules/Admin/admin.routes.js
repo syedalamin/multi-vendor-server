@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AdminRoutes = void 0;
+const client_1 = require("@prisma/client");
+const express_1 = __importDefault(require("express"));
+const fileUploader_1 = require("../../../utils/fileUploader");
+const formDataParser_1 = __importDefault(require("../../../utils/formDataParser"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const admin_controllers_1 = require("./admin.controllers");
+const admin_validation_1 = require("./admin.validation");
+const router = express_1.default.Router();
+router.get("/", admin_controllers_1.AdminControllers.getAllAdmins);
+router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), admin_controllers_1.AdminControllers.getByIdFromDB);
+router.patch("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), fileUploader_1.upload.single("file"), formDataParser_1.default, (0, validateRequest_1.default)(admin_validation_1.AdminValidations.adminUpdateValidation), admin_controllers_1.AdminControllers.updateByIdFrmDB);
+router.delete("/soft/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), admin_controllers_1.AdminControllers.softDeleteFromDB);
+router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), admin_controllers_1.AdminControllers.deleteFromDB);
+exports.AdminRoutes = router;

@@ -1,0 +1,25 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProductRoutes = void 0;
+const client_1 = require("@prisma/client");
+const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const product_controllers_1 = require("./product.controllers");
+const formDataParser_1 = __importDefault(require("../../../utils/formDataParser"));
+const fileUploader_1 = require("../../../utils/fileUploader");
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const product_validation_1 = require("./product.validation");
+const router = express_1.default.Router();
+router.post("/create-product", fileUploader_1.upload.any(), formDataParser_1.default, (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), (0, validateRequest_1.default)(product_validation_1.ProductValidation.productValidationSchema), product_controllers_1.ProductControllers.createDataIntoDB);
+router.get("/", product_controllers_1.ProductControllers.getAllDataFromDB);
+router.get("/my-vendor", (0, auth_1.default)(client_1.UserRole.VENDOR), product_controllers_1.ProductControllers.getAllMyDataFromDB);
+router.post("/ids/", product_controllers_1.ProductControllers.getByIdsFromDB);
+router.get("/:id", product_controllers_1.ProductControllers.getBySlugFromDB);
+router.get("/id/:id", product_controllers_1.ProductControllers.getByIdFromDB);
+router.get("/related/:id", product_controllers_1.ProductControllers.relatedProducts);
+router.patch("/:id", fileUploader_1.upload.any(), formDataParser_1.default, (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), product_controllers_1.ProductControllers.updateByIdIntoDB);
+router.delete("/soft/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), product_controllers_1.ProductControllers.softDeleteByIdFromDB);
+exports.ProductRoutes = router;

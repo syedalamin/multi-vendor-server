@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OrderRoutes = void 0;
+const client_1 = require("@prisma/client");
+const express_1 = __importDefault(require("express"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const order_controllers_1 = require("./order.controllers");
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const order_validation_1 = require("./order.validation");
+const router = express_1.default.Router();
+router.post("/create", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), (0, validateRequest_1.default)(order_validation_1.OrderValidation.shippingInfoValidation), order_controllers_1.OrderControllers.createDataIntoDB);
+router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), order_controllers_1.OrderControllers.getAllDataFromDB);
+router.get("/vendor/my-order", (0, auth_1.default)(client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.getMyVendorDataFromDB);
+router.get("/my-order", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER, client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.getMyDataFromDB);
+router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER, client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.getByIdFromDB);
+router.post("/ids", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER, client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.getByIdsFromDB);
+router.patch("/status/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.updateStatusByIdIntoDB);
+router.patch("/payment-status/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.updatePaymentStatusByIdIntoDB);
+router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), order_controllers_1.OrderControllers.deleteByIdFromDB);
+exports.OrderRoutes = router;

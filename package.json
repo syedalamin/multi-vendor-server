@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "migrate": "npx prisma migrate dev",
-    "generate": "npx prisma generate",
-    "ins": "npm install",
-    "seed": "ts-node-dev --respawn --transpile-only prisma/seed.ts"
+    "seed": "ts-node-dev --respawn --transpile-only prisma/seed.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
