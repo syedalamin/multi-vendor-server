@@ -5,14 +5,15 @@ import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./utils/notFound";
 import cookieParser from "cookie-parser";
 
-
 const app = express();
 
 //! use  parser
 app.use(
   cors({
     origin: [
-      "http://localhost:3000"
+      "https://multi-vendor-five.vercel.app",
+      "https://trustyshoptbd.com",
+      "http://localhost:3000",
     ],
     credentials: true,
   })
@@ -26,8 +27,6 @@ app.use("/api/v1", Routers);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-
 
 //! not found path
 app.use(notFound);

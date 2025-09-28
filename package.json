@@ -7,8 +7,10 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "migrate": "npx prisma migrate dev",
     "seed": "ts-node-dev --respawn --transpile-only prisma/seed.ts",
+    "ins": "npm install",
+    "generate": "npx prisma generate",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/src/server.js"
   },
   "keywords": [],
   "author": "",
