@@ -10,6 +10,7 @@ import { IPaginationOptions } from "../../../interface/pagination";
 import { allowedSortOrder } from "../../../utils/pagination/pagination";
 import { buildSortCondition } from "../../../utils/search/buildSortCondition";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
+import sendToCPanel from "../../../utils/sendCPanel";
 
 const createSubCategoryIntoDB = async (req: Request) => {
   const name = req.body.name;
@@ -36,12 +37,18 @@ const createSubCategoryIntoDB = async (req: Request) => {
     throw new ApiError(status.NOT_FOUND, "Category is not found");
   }
 
-  if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
+  // if (req.file) {
+  //   const { secure_url } = (await sendImageToCloudinary(
+  //     req.file
+  //   )) as ICloudinaryUploadResponse;
 
-    req.body.image = secure_url;
+  //   req.body.image = secure_url;
+  // }
+
+  if (req.file) {
+    const fileUrl = sendToCPanel(req);
+
+    req.body.image = fileUrl;
   }
 
   if (!req.body.image) {

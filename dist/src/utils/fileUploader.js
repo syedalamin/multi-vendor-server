@@ -11,7 +11,7 @@ const storage = multer_1.default.diskStorage({
         cb(null, path_1.default.join(process.cwd(), "uploads"));
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        cb(null, Date.now() + file.originalname);
     },
 });
 exports.upload = (0, multer_1.default)({ storage: storage });

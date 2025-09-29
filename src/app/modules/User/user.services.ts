@@ -17,6 +17,7 @@ import prisma from "../../../utils/share/prisma";
 import { generateSlug } from "../../../utils/slug/generateSlug";
 import { userSearchAbleFields } from "./user.constants";
 import { IUserFilterRequest } from "./user.interface";
+import sendToCPanel from "../../../utils/sendCPanel";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
   const isUserExist = await prisma.admin.findFirst({
@@ -29,11 +30,17 @@ const createAdmin = async (req: Request): Promise<Admin> => {
     throw new ApiError(status.CONFLICT, "User is already exists ");
   }
 
+  // if (req.file) {
+  //   const { secure_url } = (await sendImageToCloudinary(
+  //     req.file
+  //   )) as ICloudinaryUploadResponse;
+  //   req.body.admin.profilePhoto = secure_url;
+  // }
+
   if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
-    req.body.admin.profilePhoto = secure_url;
+    const fileUrl = sendToCPanel(req);
+
+    req.body.profilePhoto = fileUrl;
   }
 
   const hashedPassword: string = await bcrypt.hash(req.body.password, 12);
@@ -57,8 +64,6 @@ const createAdmin = async (req: Request): Promise<Admin> => {
 
   return result;
 };
-
-
 
 const createVendor = async (req: Request) => {
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -139,11 +144,17 @@ const createCustomer = async (req: Request) => {
     },
   });
 
+  // if (req.file) {
+  //   const { secure_url } = (await sendImageToCloudinary(
+  //     req.file
+  //   )) as ICloudinaryUploadResponse;
+  //   req.body.customer.profilePhoto = secure_url;
+  // }
+
   if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
-    req.body.customer.profilePhoto = secure_url;
+    const fileUrl = sendToCPanel(req);
+
+    req.body.profilePhoto = fileUrl;
   }
 
   if (isUserExist) {
@@ -285,11 +296,17 @@ const updateMyProfile = async (req: Request, user?: JwtPayload) => {
 
   let updatedData = { ...req.body };
 
+  // if (req.file) {
+  //   const { secure_url } = (await sendImageToCloudinary(
+  //     req.file
+  //   )) as ICloudinaryUploadResponse;
+  //   updatedData.profilePhoto = secure_url;
+  // }
+
   if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
-    updatedData.profilePhoto = secure_url;
+    const fileUrl = sendToCPanel(req);
+
+    req.body.profilePhoto = fileUrl;
   }
 
   let profileInfo;

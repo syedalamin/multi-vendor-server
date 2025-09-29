@@ -24,6 +24,8 @@ app.use(cookieParser());
 //! routers use
 app.use("/api/v1", Routers);
 
+app.use("/uploads", express.static("uploads"));
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

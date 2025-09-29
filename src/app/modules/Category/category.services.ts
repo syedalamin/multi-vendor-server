@@ -10,6 +10,7 @@ import { IPaginationOptions } from "../../../interface/pagination";
 import { allowedSortOrder } from "../../../utils/pagination/pagination";
 import { buildSortCondition } from "../../../utils/search/buildSortCondition";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
+import sendToCPanel from "../../../utils/sendCPanel";
 
 const createCategoryIntoDB = async (req: Request) => {
   const name = req.body.name;
@@ -24,12 +25,17 @@ const createCategoryIntoDB = async (req: Request) => {
     throw new ApiError(status.FOUND, "Category is already exists");
   }
 
-  if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
+  // if (req.file) {
+  //   const { secure_url } = (await sendImageToCloudinary(
+  //     req.file
+  //   )) as ICloudinaryUploadResponse;
 
-    req.body.image = secure_url;
+  //   req.body.image = secure_url;
+  // } 
+  if (req.file) {
+     const fileUrl = sendToCPanel(req)
+
+    req.body.image = fileUrl;
   }
 
   if (!req.body.image) {
@@ -47,6 +53,9 @@ const createCategoryIntoDB = async (req: Request) => {
 
   return result;
 };
+
+
+
 const getAllCategoryFromDB = async (
   filters: { searchTerm?: string | undefined },
   options: IPaginationOptions

@@ -14,6 +14,7 @@ import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
 import sendImageToCloudinary from "../../../utils/sendCloudinary";
 import { ICloudinaryUploadResponse } from "../../../interface/file";
+import sendToCPanel from "../../../utils/sendCPanel";
 
 const getAllAdmins = async (
   filters: IAdminFilterRequest,
@@ -85,11 +86,17 @@ const updateByIdFrmDB = async (id: string, req: Request): Promise<Admin> => {
     throw new ApiError(status.NOT_FOUND, "User is not found");
   }
 
+  // if (req.file) {
+  //   const { secure_url } = (await sendImageToCloudinary(
+  //     req.file
+  //   )) as ICloudinaryUploadResponse;
+  //   req.body.profilePhoto = secure_url;
+  // }
+
   if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
-    req.body.profilePhoto = secure_url;
+    const fileUrl = sendToCPanel(req);
+
+    req.body.profilePhoto = fileUrl;
   }
 
   const result = await prisma.admin.update({

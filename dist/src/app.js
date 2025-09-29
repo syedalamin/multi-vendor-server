@@ -15,6 +15,7 @@ app.use((0, cors_1.default)({
     origin: [
         "https://multi-vendor-five.vercel.app",
         "https://trustyshoptbd.com",
+        "http://localhost:3000",
     ],
     credentials: true,
 }));
@@ -22,6 +23,7 @@ app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 //! routers use
 app.use("/api/v1", routers_1.Routers);
+app.use("/uploads", express_1.default.static("uploads"));
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });

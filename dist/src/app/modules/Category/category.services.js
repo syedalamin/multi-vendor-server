@@ -21,6 +21,7 @@ const generateSlug_1 = require("../../../utils/slug/generateSlug");
 const pagination_1 = require("../../../utils/pagination/pagination");
 const buildSortCondition_1 = require("../../../utils/search/buildSortCondition");
 const buildSearchAndFilterCondition_1 = require("../../../utils/search/buildSearchAndFilterCondition");
+const sendCPanel_1 = __importDefault(require("../../../utils/sendCPanel"));
 const createCategoryIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     const isExistsName = yield prisma_1.default.category.findFirst({
@@ -32,9 +33,15 @@ const createCategoryIntoDB = (req) => __awaiter(void 0, void 0, void 0, function
     if (isExistsName) {
         throw new apiError_1.default(http_status_1.default.FOUND, "Category is already exists");
     }
+    // if (req.file) {
+    //   const { secure_url } = (await sendImageToCloudinary(
+    //     req.file
+    //   )) as ICloudinaryUploadResponse;
+    //   req.body.image = secure_url;
+    // } 
     if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        req.body.image = secure_url;
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        req.body.image = fileUrl;
     }
     if (!req.body.image) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Upload a category picture");

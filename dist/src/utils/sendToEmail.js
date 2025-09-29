@@ -25,7 +25,7 @@ const sendToEmail = (email, html) => __awaiter(void 0, void 0, void 0, function*
         },
     });
     yield transporter.sendMail({
-        from: '"Trusty Shop" <trustyshop@gmail.com>',
+        from: "Trusty Shop",
         to: email,
         subject: "Reset Password Link",
         html,

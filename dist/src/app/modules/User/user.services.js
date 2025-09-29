@@ -24,6 +24,7 @@ const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const generateSlug_1 = require("../../../utils/slug/generateSlug");
 const user_constants_1 = require("./user.constants");
+const sendCPanel_1 = __importDefault(require("../../../utils/sendCPanel"));
 const createAdmin = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserExist = yield prisma_1.default.admin.findFirst({
         where: {
@@ -33,9 +34,15 @@ const createAdmin = (req) => __awaiter(void 0, void 0, void 0, function* () {
     if (isUserExist) {
         throw new apiError_1.default(http_status_1.default.CONFLICT, "User is already exists ");
     }
+    // if (req.file) {
+    //   const { secure_url } = (await sendImageToCloudinary(
+    //     req.file
+    //   )) as ICloudinaryUploadResponse;
+    //   req.body.admin.profilePhoto = secure_url;
+    // }
     if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        req.body.admin.profilePhoto = secure_url;
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        req.body.profilePhoto = fileUrl;
     }
     const hashedPassword = yield bcrypt_1.default.hash(req.body.password, 12);
     const userData = {
@@ -114,9 +121,15 @@ const createCustomer = (req) => __awaiter(void 0, void 0, void 0, function* () {
             email: req.body.customer.email,
         },
     });
+    // if (req.file) {
+    //   const { secure_url } = (await sendImageToCloudinary(
+    //     req.file
+    //   )) as ICloudinaryUploadResponse;
+    //   req.body.customer.profilePhoto = secure_url;
+    // }
     if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        req.body.customer.profilePhoto = secure_url;
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        req.body.profilePhoto = fileUrl;
     }
     if (isUserExist) {
         throw new apiError_1.default(http_status_1.default.CONFLICT, "Customer is Already Exists");
@@ -228,9 +241,15 @@ const updateMyProfile = (req, user) => __awaiter(void 0, void 0, void 0, functio
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "User is not found");
     }
     let updatedData = Object.assign({}, req.body);
+    // if (req.file) {
+    //   const { secure_url } = (await sendImageToCloudinary(
+    //     req.file
+    //   )) as ICloudinaryUploadResponse;
+    //   updatedData.profilePhoto = secure_url;
+    // }
     if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        updatedData.profilePhoto = secure_url;
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        req.body.profilePhoto = fileUrl;
     }
     let profileInfo;
     if (userInfo.role == client_1.UserRole.ADMIN) {

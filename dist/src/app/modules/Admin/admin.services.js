@@ -21,7 +21,7 @@ const buildSortCondition_1 = require("../../../utils/search/buildSortCondition")
 const client_1 = require("@prisma/client");
 const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
 const http_status_1 = __importDefault(require("http-status"));
-const sendCloudinary_1 = __importDefault(require("../../../utils/sendCloudinary"));
+const sendCPanel_1 = __importDefault(require("../../../utils/sendCPanel"));
 const getAllAdmins = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { limit, page, skip, sortBy, sortOrder } = (0, buildSortCondition_1.buildSortCondition)(options, pagination_1.allowedAdminSortFields, pagination_1.allowedSortOrder);
     // search
@@ -71,9 +71,15 @@ const updateByIdFrmDB = (id, req) => __awaiter(void 0, void 0, void 0, function*
     if (!isUserExist) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "User is not found");
     }
+    // if (req.file) {
+    //   const { secure_url } = (await sendImageToCloudinary(
+    //     req.file
+    //   )) as ICloudinaryUploadResponse;
+    //   req.body.profilePhoto = secure_url;
+    // }
     if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        req.body.profilePhoto = secure_url;
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        req.body.profilePhoto = fileUrl;
     }
     const result = yield prisma_1.default.admin.update({
         where: {
