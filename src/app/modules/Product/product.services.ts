@@ -325,7 +325,7 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
 
   if (productData.stock > 0) {
     productData.status = ProductStatus.ACTIVE;
-  } else {
+  } else if (productData.stock < 1) {
     productData.status = ProductStatus.OUT_OF_STOCK;
   }
 
