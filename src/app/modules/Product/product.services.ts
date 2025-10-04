@@ -225,13 +225,6 @@ const getByIdFromDB = async (id: string) => {
   const result = await prisma.product.findFirstOrThrow({
     where: {
       id,
-      status: {
-        in: [
-          ProductStatus.ACTIVE,
-          ProductStatus.DISCONTINUED,
-          ProductStatus.OUT_OF_STOCK,
-        ],
-      },
     },
 
     include: {
@@ -289,6 +282,9 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
     const isProductExistsByName = await prisma.product.findFirst({
       where: {
         name: productData.name,
+        NOT: {
+          id: id,
+        },
       },
     });
 
@@ -412,7 +408,6 @@ export const ProductServices = {
   getByIdFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
-
   relatedProducts,
   getByIdsFromDB,
   getAllMyDataFromDB,
