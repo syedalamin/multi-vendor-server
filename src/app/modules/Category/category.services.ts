@@ -133,6 +133,8 @@ const getBySlugFromDB = async (slug: string) => {
 
   return result;
 };
+
+
 const updateByIdIntoDB = async (req: Request, id: string) => {
   const name = req.body.name;
 

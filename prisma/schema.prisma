@@ -1,8 +1,6 @@
- 
-
 generator client {
-  provider = "prisma-client-js"
-   binaryTargets   = ["native", "debian-openssl-1.1.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -164,7 +162,7 @@ model Product {
 
 model Rating {
   id        String   @id @default(uuid())
-  value     Float 
+  value     Float
   review    String
   userId    String
   productId String
@@ -177,9 +175,9 @@ model Rating {
 }
 
 model Cart {
-  id        String @id @default(uuid())
-  userId    String
-  productId String
+  id              String     @id @default(uuid())
+  userId          String
+  productId       String
   productName     String
   productImage    String
   quantity        Int
@@ -200,7 +198,7 @@ model Cart {
 }
 
 model Order {
-  id             String             @id @default(uuid())
+  id             String             @id
   userId         String
   sellerId       String
   totalAmount    Decimal
@@ -224,7 +222,7 @@ model OrderItem {
   productId     String
   quantity      Int
   price         Decimal
-  productImage  String  
+  productImage  String
   discountPrice Decimal  @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -235,7 +233,7 @@ model OrderItem {
 }
 
 model Invoice {
-  id             String        @id @default(uuid())
+  id             String        @id
   userId         String
   user           User          @relation(fields: [userId], references: [id])
   orderIds       String[]
@@ -258,7 +256,7 @@ model InvoiceItem {
   invoiceId     String
   invoice       Invoice @relation(fields: [invoiceId], references: [id])
   productId     String
-  productImage String  
+  productImage  String
   productName   String
   quantity      Int
   price         Decimal

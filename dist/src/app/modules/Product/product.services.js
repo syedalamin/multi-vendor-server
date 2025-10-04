@@ -23,6 +23,7 @@ const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const generateSlug_1 = require("../../../utils/slug/generateSlug");
 const product_constant_1 = require("./product.constant");
+const sendImagesToCPanel_1 = __importDefault(require("../../../utils/sendImagesToCPanel"));
 const createDataIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const productData = req.body;
@@ -44,8 +45,7 @@ const createDataIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* ()
         productData.sellerId = isUserExists.id;
     }
     if (req.files && Array.isArray(req.files)) {
-        const uploadResult = yield Promise.all(req.files.map((file) => (0, sendCloudinary_1.default)(file)));
-        const imageUrl = uploadResult.map((result) => result === null || result === void 0 ? void 0 : result.secure_url);
+        const imageUrl = yield (0, sendImagesToCPanel_1.default)(req);
         productData.productImages = imageUrl;
     }
     productData.slug = (0, generateSlug_1.generateSlug)(productData.name);
@@ -56,7 +56,6 @@ const createDataIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* ()
         },
     });
     productData.sku = (0, generateSlug_1.generateSku)(isSubCategoryIdExist.name, productCount);
-    // return productData;
     const result = yield prisma_1.default.product.create({ data: productData });
     return result;
 });
@@ -350,5 +349,5 @@ exports.ProductServices = {
     softDeleteByIdFromDB,
     relatedProducts,
     getByIdsFromDB,
-    getAllMyDataFromDB
+    getAllMyDataFromDB,
 };

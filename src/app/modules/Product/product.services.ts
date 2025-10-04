@@ -1,4 +1,4 @@
-import {   ProductStatus, UserRole } from "@prisma/client";
+import { ProductStatus, UserRole } from "@prisma/client";
 import { Request } from "express";
 import status from "http-status";
 import { ICloudinaryUploadResponse } from "../../../interface/file";
@@ -12,8 +12,10 @@ import prisma from "../../../utils/share/prisma";
 import { generateSku, generateSlug } from "../../../utils/slug/generateSlug";
 import { allowedProductSortAbleField } from "./product.constant";
 import { IProductFilterFields } from "./product.interface";
-import { Decimal } from "@prisma/client/runtime/library";
+
 import { JwtPayload } from "jsonwebtoken";
+import sendImagesToCPanel from "../../../utils/sendImagesToCPanel";
+import deleteImagesFromCPanel from "../../../utils/deleteImagesFromCPanel";
 
 const createDataIntoDB = async (req: Request) => {
   const productData = req.body;
@@ -37,13 +39,8 @@ const createDataIntoDB = async (req: Request) => {
   }
 
   if (req.files && Array.isArray(req.files)) {
-    const uploadResult = await Promise.all(
-      req.files.map((file) => sendImageToCloudinary(file))
-    );
+    const imageUrl = await sendImagesToCPanel(req);
 
-    const imageUrl = uploadResult.map(
-      (result) => (result as ICloudinaryUploadResponse)?.secure_url
-    );
     productData.productImages = imageUrl;
   }
 
@@ -57,8 +54,6 @@ const createDataIntoDB = async (req: Request) => {
   });
 
   productData.sku = generateSku(isSubCategoryIdExist.name, productCount);
-
-  // return productData;
 
   const result = await prisma.product.create({ data: productData });
   return result;
@@ -164,13 +159,6 @@ const getAllMyDataFromDB = async (
     where: {
       ...whereConditions,
       sellerId: userInfo.id,
-      status: {
-        in: [
-          ProductStatus.ACTIVE,
-          ProductStatus.DISCONTINUED,
-          ProductStatus.OUT_OF_STOCK,
-        ],
-      },
     },
     skip,
     take: limit,
@@ -195,13 +183,6 @@ const getAllMyDataFromDB = async (
     where: {
       ...whereConditions,
       sellerId: userInfo.id,
-      status: {
-        in: [
-          ProductStatus.ACTIVE,
-          ProductStatus.DISCONTINUED,
-          ProductStatus.OUT_OF_STOCK,
-        ],
-      },
     },
   });
 
@@ -214,8 +195,6 @@ const getAllMyDataFromDB = async (
     data: result,
   };
 };
-
-
 
 const getBySlugFromDB = async (slug: string) => {
   const result = await prisma.product.findFirstOrThrow({
@@ -293,6 +272,7 @@ const getByIdsFromDB = async (req: Request) => {
 
 const updateByIdIntoDB = async (id: string, req: Request) => {
   const productData = req.body;
+
   if (productData.subCategoryId) {
     const isSubCategoryIdExist = await prisma.subCategory.findFirst({
       where: {
@@ -309,13 +289,6 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
     const isProductExistsByName = await prisma.product.findFirst({
       where: {
         name: productData.name,
-        status: {
-          in: [
-            ProductStatus.ACTIVE,
-            ProductStatus.DISCONTINUED,
-            ProductStatus.OUT_OF_STOCK,
-          ],
-        },
       },
     });
 
@@ -328,44 +301,45 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
   const existingProduct = await prisma.product.findUniqueOrThrow({
     where: {
       id,
-      status: {
-        in: [
-          ProductStatus.ACTIVE,
-          ProductStatus.DISCONTINUED,
-          ProductStatus.OUT_OF_STOCK,
-        ],
-      },
     },
   });
 
   if (!existingProduct) {
     throw new ApiError(status.NOT_FOUND, "Product is not found");
   }
+
   let updateImages = existingProduct.productImages || [];
 
   if (productData.removeImages && Array.isArray(productData.removeImages)) {
+    await deleteImagesFromCPanel(productData.removeImages);
     updateImages = updateImages.filter(
       (img) => !productData.removeImages.includes(img)
     );
   }
 
   if (req.files && Array.isArray(req.files)) {
-    const uploadResult = await Promise.all(
-      req.files.map((file) => sendImageToCloudinary(file))
-    );
+    const imageUrl = await sendImagesToCPanel(req);
 
-    const imageUrl = uploadResult.map(
-      (result) => (result as ICloudinaryUploadResponse)?.secure_url
-    );
     updateImages = [...updateImages, ...imageUrl];
   }
-  existingProduct.productImages = updateImages;
+
+  if (productData.stock > 0) {
+    productData.status = ProductStatus.ACTIVE;
+  } else {
+    productData.status = ProductStatus.OUT_OF_STOCK;
+  }
+
+  const { removeImages, ...otherProductData } = productData;
+  const updatedData = {
+    ...otherProductData,
+    productImages: updateImages,
+  };
 
   const result = await prisma.product.update({
     where: {
       id: existingProduct.id,
     },
-    data: existingProduct,
+    data: updatedData,
   });
 
   return result;
@@ -395,7 +369,6 @@ const softDeleteByIdFromDB = async (id: string) => {
   return result;
 };
 
-
 const relatedProducts = async (id: string) => {
   const isProductExists = await prisma.product.findUniqueOrThrow({
     where: {
@@ -418,6 +391,13 @@ const relatedProducts = async (id: string) => {
     where: {
       subCategoryId: isProductExists.subCategoryId,
       NOT: { id: isProductExists.id },
+      status: {
+        in: [
+          ProductStatus.ACTIVE,
+          ProductStatus.DISCONTINUED,
+          ProductStatus.OUT_OF_STOCK,
+        ],
+      },
     },
     orderBy: { id: "desc" },
     take: 4,
@@ -432,8 +412,8 @@ export const ProductServices = {
   getByIdFromDB,
   updateByIdIntoDB,
   softDeleteByIdFromDB,
- 
+
   relatedProducts,
   getByIdsFromDB,
-  getAllMyDataFromDB
+  getAllMyDataFromDB,
 };

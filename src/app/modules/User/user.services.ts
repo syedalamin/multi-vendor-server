@@ -18,6 +18,8 @@ import { generateSlug } from "../../../utils/slug/generateSlug";
 import { userSearchAbleFields } from "./user.constants";
 import { IUserFilterRequest } from "./user.interface";
 import sendToCPanel from "../../../utils/sendCPanel";
+import sendImagesToCPanel from "../../../utils/sendImagesToCPanel";
+import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
   const isUserExist = await prisma.admin.findFirst({
@@ -29,13 +31,6 @@ const createAdmin = async (req: Request): Promise<Admin> => {
   if (isUserExist) {
     throw new ApiError(status.CONFLICT, "User is already exists ");
   }
-
-  // if (req.file) {
-  //   const { secure_url } = (await sendImageToCloudinary(
-  //     req.file
-  //   )) as ICloudinaryUploadResponse;
-  //   req.body.admin.profilePhoto = secure_url;
-  // }
 
   if (req.file) {
     const fileUrl = sendToCPanel(req);
@@ -77,26 +72,14 @@ const createVendor = async (req: Request) => {
     throw new ApiError(status.CONFLICT, "Vendor is Already Exists");
   }
 
-  if (files) {
+  if (req.files) {
     if (files.logo) {
-      const uploadResult = await Promise.all(
-        files.logo.map((file) => sendImageToCloudinary(file))
-      );
-
-      const imageUrl = uploadResult.map(
-        (result) => (result as ICloudinaryUploadResponse)?.secure_url
-      );
-      vendorData.vendor.logo = imageUrl[0];
+      const imageUrl = sendShopImageToCPanel(req);
+      vendorData.vendor.logo = imageUrl.logo[0];
     }
     if (files.banner) {
-      const uploadResult = await Promise.all(
-        files.banner.map((file) => sendImageToCloudinary(file))
-      );
-
-      const imageUrl = uploadResult.map(
-        (result) => (result as ICloudinaryUploadResponse)?.secure_url
-      );
-      vendorData.vendor.banner = imageUrl[0];
+      const imageUrl = sendShopImageToCPanel(req);
+      vendorData.vendor.banner = imageUrl.banner[0];
     }
   }
 
@@ -121,6 +104,7 @@ const createVendor = async (req: Request) => {
       vendorData.vendor.shopSlug = slug;
     }
   }
+ 
 
   const result = await prisma.$transaction(async (transactionClient) => {
     await transactionClient.user.create({
@@ -135,6 +119,7 @@ const createVendor = async (req: Request) => {
   });
 
   return result;
+
 };
 
 const createCustomer = async (req: Request) => {
@@ -143,13 +128,6 @@ const createCustomer = async (req: Request) => {
       email: req.body.customer.email,
     },
   });
-
-  // if (req.file) {
-  //   const { secure_url } = (await sendImageToCloudinary(
-  //     req.file
-  //   )) as ICloudinaryUploadResponse;
-  //   req.body.customer.profilePhoto = secure_url;
-  // }
 
   if (req.file) {
     const fileUrl = sendToCPanel(req);

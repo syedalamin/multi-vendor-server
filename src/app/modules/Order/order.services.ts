@@ -100,9 +100,24 @@ const checkout = async (
 
         const finalAmount = totalPrice - totalDiscount + deliveryCharge;
 
+        const lastOrder = await tx.order.findFirst({
+          orderBy: { createdAt: "desc" },
+        });
+
+        let nextId = 1;
+
+        if (lastOrder) {
+          const lastIdNum = parseInt(lastOrder?.id?.replace("ORD-", ""), 10);
+          nextId = lastIdNum + 1;
+        }
+
+        const padded = nextId.toString().padStart(5, "0");
+        const newOrder = `ORD-${padded}`;
+
         // create order
         const order = await tx.order.create({
           data: {
+            id: newOrder,
             userId: userInfo.id,
             sellerId,
             totalAmount: new Prisma.Decimal(finalAmount),
@@ -173,8 +188,23 @@ const checkout = async (
 
       const subTotal = totalAmount.minus(deliveryCharge);
 
+      const lastInvoice = await tx.invoice.findFirst({
+        orderBy: { createdAt: "desc" },
+      });
+
+      let nextId = 1;
+
+      if (lastInvoice) {
+        const lastIdNum = parseInt(lastInvoice?.id?.replace("INV-", ""), 10);
+        nextId = lastIdNum + 1;
+      }
+
+      const padded = nextId.toString().padStart(5, "0");
+      const newInvoiceId = `INV-${padded}`;
+
       const invoice = await tx.invoice.create({
         data: {
+          id: newInvoiceId,
           userId: userInfo.id,
           orderIds: orders.map((o) => o.order.id),
           sellerIds: orders.map((o) => o.order.sellerId),

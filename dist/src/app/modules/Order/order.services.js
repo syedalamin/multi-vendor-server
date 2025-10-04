@@ -23,7 +23,7 @@ const checkout = (user, shippingInfo, paymentType) => __awaiter(void 0, void 0, 
         select: { id: true, email: true },
     });
     const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
+        var _a, _b, _c;
         const cartItems = yield tx.cart.findMany({
             where: { userId: userInfo.id },
             include: {
@@ -83,9 +83,20 @@ const checkout = (user, shippingInfo, paymentType) => __awaiter(void 0, void 0, 
             const sellerDistrict = ((_a = items[0].product.seller.vendor) === null || _a === void 0 ? void 0 : _a.district) || "";
             const deliveryCharge = sellerDistrict === shippingInfo.districts ? 80 : 130;
             const finalAmount = totalPrice - totalDiscount + deliveryCharge;
+            const lastOrder = yield tx.order.findFirst({
+                orderBy: { createdAt: "desc" },
+            });
+            let nextId = 1;
+            if (lastOrder) {
+                const lastIdNum = parseInt((_b = lastOrder === null || lastOrder === void 0 ? void 0 : lastOrder.id) === null || _b === void 0 ? void 0 : _b.replace("ORD-", ""), 10);
+                nextId = lastIdNum + 1;
+            }
+            const padded = nextId.toString().padStart(5, "0");
+            const newOrder = `ORD-${padded}`;
             // create order
             const order = yield tx.order.create({
                 data: {
+                    id: newOrder,
                     userId: userInfo.id,
                     sellerId,
                     totalAmount: new client_1.Prisma.Decimal(finalAmount),
@@ -140,8 +151,19 @@ const checkout = (user, shippingInfo, paymentType) => __awaiter(void 0, void 0, 
         const totalAmount = new client_1.Prisma.Decimal(orders.reduce((sum, o) => sum + Number(o.order.totalAmount), 0));
         const deliveryCharge = new client_1.Prisma.Decimal(orders.reduce((sum, o) => sum + Number(o.order.deliveryCharge), 0));
         const subTotal = totalAmount.minus(deliveryCharge);
+        const lastInvoice = yield tx.invoice.findFirst({
+            orderBy: { createdAt: "desc" },
+        });
+        let nextId = 1;
+        if (lastInvoice) {
+            const lastIdNum = parseInt((_c = lastInvoice === null || lastInvoice === void 0 ? void 0 : lastInvoice.id) === null || _c === void 0 ? void 0 : _c.replace("INV-", ""), 10);
+            nextId = lastIdNum + 1;
+        }
+        const padded = nextId.toString().padStart(5, "0");
+        const newInvoiceId = `INV-${padded}`;
         const invoice = yield tx.invoice.create({
             data: {
+                id: newInvoiceId,
                 userId: userInfo.id,
                 orderIds: orders.map((o) => o.order.id),
                 sellerIds: orders.map((o) => o.order.sellerId),
