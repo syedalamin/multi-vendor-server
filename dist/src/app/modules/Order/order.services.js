@@ -376,7 +376,7 @@ const updateStatusByIdIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0
         },
     });
     if (!orderStatus(isOrderExists.status, payload.status)) {
-        throw new apiError_1.default(http_status_1.default.CONFLICT, `Invalid status transition from ${isOrderExists.status} to ${payload.status}`);
+        throw new apiError_1.default(http_status_1.default.CONFLICT, `Status can't change transition from ${isOrderExists.status} to ${payload.status}`);
     }
     const updateStatus = yield prisma_1.default.order.update({
         where: {

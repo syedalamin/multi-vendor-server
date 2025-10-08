@@ -16,12 +16,13 @@ exports.SubCategoryServices = void 0;
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
 const http_status_1 = __importDefault(require("http-status"));
-const sendCloudinary_1 = __importDefault(require("../../../utils/sendCloudinary"));
 const generateSlug_1 = require("../../../utils/slug/generateSlug");
+const client_1 = require("@prisma/client");
 const pagination_1 = require("../../../utils/pagination/pagination");
 const buildSortCondition_1 = require("../../../utils/search/buildSortCondition");
 const buildSearchAndFilterCondition_1 = require("../../../utils/search/buildSearchAndFilterCondition");
 const sendCPanel_1 = __importDefault(require("../../../utils/sendCPanel"));
+const deleteImageFromCPanel_1 = __importDefault(require("../../../utils/deleteImageFromCPanel"));
 const createSubCategoryIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     const categoryId = req.body.categoryId;
@@ -43,12 +44,6 @@ const createSubCategoryIntoDB = (req) => __awaiter(void 0, void 0, void 0, funct
     if (!isCategoryIdExists) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Category is not found");
     }
-    // if (req.file) {
-    //   const { secure_url } = (await sendImageToCloudinary(
-    //     req.file
-    //   )) as ICloudinaryUploadResponse;
-    //   req.body.image = secure_url;
-    // }
     if (req.file) {
         const fileUrl = (0, sendCPanel_1.default)(req);
         req.body.image = fileUrl;
@@ -108,18 +103,30 @@ const getBySlugFromDB = (slug) => __awaiter(void 0, void 0, void 0, function* ()
                     image: true,
                 },
             },
-            product: true,
+            product: {
+                where: {
+                    status: {
+                        in: [
+                            client_1.ProductStatus.ACTIVE,
+                            client_1.ProductStatus.DISCONTINUED,
+                            client_1.ProductStatus.OUT_OF_STOCK,
+                        ],
+                    },
+                },
+            },
         },
     });
     return result;
 });
 const updateByIdIntoDB = (req, id) => __awaiter(void 0, void 0, void 0, function* () {
-    const name = req.body.name;
+    const { name, categoryId } = req.body;
     if (name) {
         const isExistsName = yield prisma_1.default.subCategory.findFirst({
             where: {
                 name: name,
-                isDeleted: false,
+                NOT: {
+                    id: id,
+                },
             },
         });
         if (isExistsName) {
@@ -135,23 +142,21 @@ const updateByIdIntoDB = (req, id) => __awaiter(void 0, void 0, void 0, function
     if (!isExistsSubCategory) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Sub Category is not found");
     }
-    if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        req.body.image = secure_url;
-    }
     const subCategoryData = {};
     if (name) {
         subCategoryData.name = name;
         subCategoryData.slug = (0, generateSlug_1.generateSlug)(name);
     }
-    else if (req.body.image) {
-        subCategoryData.image = req.body.image;
+    if (req.file) {
+        yield (0, deleteImageFromCPanel_1.default)(req.body.image);
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        subCategoryData.image = fileUrl;
     }
     const result = yield prisma_1.default.subCategory.update({
         where: {
             id: isExistsSubCategory.id,
         },
-        data: subCategoryData,
+        data: Object.assign(Object.assign({}, subCategoryData), { categoryId }),
     });
     return result;
 });

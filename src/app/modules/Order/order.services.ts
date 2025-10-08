@@ -462,7 +462,7 @@ const updateStatusByIdIntoDB = async (
   if (!orderStatus(isOrderExists.status, payload.status)) {
     throw new ApiError(
       status.CONFLICT,
-      `Invalid status transition from ${isOrderExists.status} to ${payload.status}`
+      `Status can't change transition from ${isOrderExists.status} to ${payload.status}`
     );
   }
 

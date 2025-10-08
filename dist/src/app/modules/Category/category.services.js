@@ -16,12 +16,12 @@ exports.CategoryServices = void 0;
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
 const http_status_1 = __importDefault(require("http-status"));
-const sendCloudinary_1 = __importDefault(require("../../../utils/sendCloudinary"));
 const generateSlug_1 = require("../../../utils/slug/generateSlug");
 const pagination_1 = require("../../../utils/pagination/pagination");
 const buildSortCondition_1 = require("../../../utils/search/buildSortCondition");
 const buildSearchAndFilterCondition_1 = require("../../../utils/search/buildSearchAndFilterCondition");
 const sendCPanel_1 = __importDefault(require("../../../utils/sendCPanel"));
+const deleteImageFromCPanel_1 = __importDefault(require("../../../utils/deleteImageFromCPanel"));
 const createCategoryIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     const isExistsName = yield prisma_1.default.category.findFirst({
@@ -33,12 +33,6 @@ const createCategoryIntoDB = (req) => __awaiter(void 0, void 0, void 0, function
     if (isExistsName) {
         throw new apiError_1.default(http_status_1.default.FOUND, "Category is already exists");
     }
-    // if (req.file) {
-    //   const { secure_url } = (await sendImageToCloudinary(
-    //     req.file
-    //   )) as ICloudinaryUploadResponse;
-    //   req.body.image = secure_url;
-    // } 
     if (req.file) {
         const fileUrl = (0, sendCPanel_1.default)(req);
         req.body.image = fileUrl;
@@ -120,7 +114,9 @@ const updateByIdIntoDB = (req, id) => __awaiter(void 0, void 0, void 0, function
         const isExistsName = yield prisma_1.default.category.findFirst({
             where: {
                 name: name,
-                isDeleted: false,
+                NOT: {
+                    id: id,
+                },
             },
         });
         if (isExistsName) {
@@ -136,17 +132,15 @@ const updateByIdIntoDB = (req, id) => __awaiter(void 0, void 0, void 0, function
     if (!isExistsCategory) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Category is not found");
     }
-    if (req.file) {
-        const { secure_url } = (yield (0, sendCloudinary_1.default)(req.file));
-        req.body.image = secure_url;
-    }
     const categoryData = {};
     if (name) {
         categoryData.name = name;
         categoryData.slug = (0, generateSlug_1.generateSlug)(name);
     }
-    else if (req.body.image) {
-        categoryData.image = req.body.image;
+    if (req.file) {
+        yield (0, deleteImageFromCPanel_1.default)(req.body.image);
+        const fileUrl = (0, sendCPanel_1.default)(req);
+        categoryData.image = fileUrl;
     }
     const result = yield prisma_1.default.category.update({
         where: {

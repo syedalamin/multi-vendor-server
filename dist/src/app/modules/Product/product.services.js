@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -18,12 +29,12 @@ const http_status_1 = __importDefault(require("http-status"));
 const pagination_1 = require("../../../utils/pagination/pagination");
 const buildSearchAndFilterCondition_1 = require("../../../utils/search/buildSearchAndFilterCondition");
 const buildSortCondition_1 = require("../../../utils/search/buildSortCondition");
-const sendCloudinary_1 = __importDefault(require("../../../utils/sendCloudinary"));
 const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const generateSlug_1 = require("../../../utils/slug/generateSlug");
 const product_constant_1 = require("./product.constant");
 const sendImagesToCPanel_1 = __importDefault(require("../../../utils/sendImagesToCPanel"));
+const deleteImagesFromCPanel_1 = __importDefault(require("../../../utils/deleteImagesFromCPanel"));
 const createDataIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const productData = req.body;
@@ -122,13 +133,7 @@ const getAllMyDataFromDB = (filters, options, user) => __awaiter(void 0, void 0,
         },
     });
     const result = yield prisma_1.default.product.findMany({
-        where: Object.assign(Object.assign({}, whereConditions), { sellerId: userInfo.id, status: {
-                in: [
-                    client_1.ProductStatus.ACTIVE,
-                    client_1.ProductStatus.DISCONTINUED,
-                    client_1.ProductStatus.OUT_OF_STOCK,
-                ],
-            } }),
+        where: Object.assign(Object.assign({}, whereConditions), { sellerId: userInfo.id }),
         skip,
         take: limit,
         orderBy: sortBy && sortOrder
@@ -148,13 +153,7 @@ const getAllMyDataFromDB = (filters, options, user) => __awaiter(void 0, void 0,
         },
     });
     const total = yield prisma_1.default.product.count({
-        where: Object.assign(Object.assign({}, whereConditions), { sellerId: userInfo.id, status: {
-                in: [
-                    client_1.ProductStatus.ACTIVE,
-                    client_1.ProductStatus.DISCONTINUED,
-                    client_1.ProductStatus.OUT_OF_STOCK,
-                ],
-            } }),
+        where: Object.assign(Object.assign({}, whereConditions), { sellerId: userInfo.id }),
     });
     return {
         meta: {
@@ -192,13 +191,6 @@ const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.product.findFirstOrThrow({
         where: {
             id,
-            status: {
-                in: [
-                    client_1.ProductStatus.ACTIVE,
-                    client_1.ProductStatus.DISCONTINUED,
-                    client_1.ProductStatus.OUT_OF_STOCK,
-                ],
-            },
         },
         include: {
             subCategory: {
@@ -248,12 +240,8 @@ const updateByIdIntoDB = (id, req) => __awaiter(void 0, void 0, void 0, function
         const isProductExistsByName = yield prisma_1.default.product.findFirst({
             where: {
                 name: productData.name,
-                status: {
-                    in: [
-                        client_1.ProductStatus.ACTIVE,
-                        client_1.ProductStatus.DISCONTINUED,
-                        client_1.ProductStatus.OUT_OF_STOCK,
-                    ],
+                NOT: {
+                    id: id,
                 },
             },
         });
@@ -265,13 +253,6 @@ const updateByIdIntoDB = (id, req) => __awaiter(void 0, void 0, void 0, function
     const existingProduct = yield prisma_1.default.product.findUniqueOrThrow({
         where: {
             id,
-            status: {
-                in: [
-                    client_1.ProductStatus.ACTIVE,
-                    client_1.ProductStatus.DISCONTINUED,
-                    client_1.ProductStatus.OUT_OF_STOCK,
-                ],
-            },
         },
     });
     if (!existingProduct) {
@@ -279,19 +260,26 @@ const updateByIdIntoDB = (id, req) => __awaiter(void 0, void 0, void 0, function
     }
     let updateImages = existingProduct.productImages || [];
     if (productData.removeImages && Array.isArray(productData.removeImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(productData.removeImages);
         updateImages = updateImages.filter((img) => !productData.removeImages.includes(img));
     }
     if (req.files && Array.isArray(req.files)) {
-        const uploadResult = yield Promise.all(req.files.map((file) => (0, sendCloudinary_1.default)(file)));
-        const imageUrl = uploadResult.map((result) => result === null || result === void 0 ? void 0 : result.secure_url);
+        const imageUrl = yield (0, sendImagesToCPanel_1.default)(req);
         updateImages = [...updateImages, ...imageUrl];
     }
-    existingProduct.productImages = updateImages;
+    if (productData.stock > 0) {
+        productData.status = client_1.ProductStatus.ACTIVE;
+    }
+    else if (productData.stock < 1) {
+        productData.status = client_1.ProductStatus.OUT_OF_STOCK;
+    }
+    const { removeImages } = productData, otherProductData = __rest(productData, ["removeImages"]);
+    const updatedData = Object.assign(Object.assign({}, otherProductData), { productImages: updateImages });
     const result = yield prisma_1.default.product.update({
         where: {
             id: existingProduct.id,
         },
-        data: existingProduct,
+        data: updatedData,
     });
     return result;
 });
@@ -334,6 +322,13 @@ const relatedProducts = (id) => __awaiter(void 0, void 0, void 0, function* () {
         where: {
             subCategoryId: isProductExists.subCategoryId,
             NOT: { id: isProductExists.id },
+            status: {
+                in: [
+                    client_1.ProductStatus.ACTIVE,
+                    client_1.ProductStatus.DISCONTINUED,
+                    client_1.ProductStatus.OUT_OF_STOCK,
+                ],
+            },
         },
         orderBy: { id: "desc" },
         take: 4,

@@ -11,6 +11,7 @@ import { allowedSortOrder } from "../../../utils/pagination/pagination";
 import { buildSortCondition } from "../../../utils/search/buildSortCondition";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
 import sendToCPanel from "../../../utils/sendCPanel";
+import deleteImageFromCPanel from "../../../utils/deleteImageFromCPanel";
 
 const createCategoryIntoDB = async (req: Request) => {
   const name = req.body.name;
@@ -25,15 +26,8 @@ const createCategoryIntoDB = async (req: Request) => {
     throw new ApiError(status.FOUND, "Category is already exists");
   }
 
-  // if (req.file) {
-  //   const { secure_url } = (await sendImageToCloudinary(
-  //     req.file
-  //   )) as ICloudinaryUploadResponse;
-
-  //   req.body.image = secure_url;
-  // } 
   if (req.file) {
-     const fileUrl = sendToCPanel(req)
+    const fileUrl = sendToCPanel(req);
 
     req.body.image = fileUrl;
   }
@@ -53,8 +47,6 @@ const createCategoryIntoDB = async (req: Request) => {
 
   return result;
 };
-
-
 
 const getAllCategoryFromDB = async (
   filters: { searchTerm?: string | undefined },
@@ -108,9 +100,6 @@ const getAllCategoryFromDB = async (
   };
 };
 
-
-
-
 const getBySlugFromDB = async (slug: string) => {
   const result = await prisma.category.findFirstOrThrow({
     where: {
@@ -134,7 +123,6 @@ const getBySlugFromDB = async (slug: string) => {
   return result;
 };
 
-
 const updateByIdIntoDB = async (req: Request, id: string) => {
   const name = req.body.name;
 
@@ -142,7 +130,9 @@ const updateByIdIntoDB = async (req: Request, id: string) => {
     const isExistsName = await prisma.category.findFirst({
       where: {
         name: name,
-        isDeleted: false,
+        NOT: {
+          id: id,
+        },
       },
     });
 
@@ -162,21 +152,22 @@ const updateByIdIntoDB = async (req: Request, id: string) => {
     throw new ApiError(status.NOT_FOUND, "Category is not found");
   }
 
-  if (req.file) {
-    const { secure_url } = (await sendImageToCloudinary(
-      req.file
-    )) as ICloudinaryUploadResponse;
-
-    req.body.image = secure_url;
-  }
 
   const categoryData: Prisma.CategoryUpdateInput = {};
   if (name) {
     categoryData.name = name;
     categoryData.slug = generateSlug(name);
-  } else if (req.body.image) {
-    categoryData.image = req.body.image;
+  } 
+
+  
+  if (req.file) {
+    await deleteImageFromCPanel(req.body.image);
+    const fileUrl = sendToCPanel(req);
+
+    categoryData.image= fileUrl;
   }
+
+
 
   const result = await prisma.category.update({
     where: {
