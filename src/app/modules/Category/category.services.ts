@@ -82,6 +82,7 @@ const getAllCategoryFromDB = async (
           image: true,
           categoryId: true,
           isDeleted: true,
+          slug: true,
         },
       },
     },
@@ -152,22 +153,18 @@ const updateByIdIntoDB = async (req: Request, id: string) => {
     throw new ApiError(status.NOT_FOUND, "Category is not found");
   }
 
-
   const categoryData: Prisma.CategoryUpdateInput = {};
   if (name) {
     categoryData.name = name;
     categoryData.slug = generateSlug(name);
-  } 
+  }
 
-  
   if (req.file) {
     await deleteImageFromCPanel(req.body.image);
     const fileUrl = sendToCPanel(req);
 
-    categoryData.image= fileUrl;
+    categoryData.image = fileUrl;
   }
-
-
 
   const result = await prisma.category.update({
     where: {
