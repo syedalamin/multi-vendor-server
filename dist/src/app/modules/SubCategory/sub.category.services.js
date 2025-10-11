@@ -68,6 +68,27 @@ const getAllSubCategoryFromDB = (filters, options) => __awaiter(void 0, void 0, 
         where: whereConditions,
         skip,
         take: limit,
+        include: {
+            category: {
+                select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    image: true,
+                },
+            },
+            product: {
+                where: {
+                    status: {
+                        in: [
+                            client_1.ProductStatus.ACTIVE,
+                            client_1.ProductStatus.DISCONTINUED,
+                            client_1.ProductStatus.OUT_OF_STOCK,
+                        ],
+                    },
+                },
+            },
+        },
         orderBy: sortBy && sortOrder
             ? {
                 [sortBy]: sortOrder,

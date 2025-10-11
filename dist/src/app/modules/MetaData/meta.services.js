@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.VendorMetaServices = void 0;
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const client_1 = require("@prisma/client");
+const sendShopImageToCPanel_1 = __importDefault(require("../../../utils/sendShopImageToCPanel"));
 const getMyVendorMetaDataFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const userInfo = yield prisma_1.default.user.findFirstOrThrow({
         where: {
@@ -177,7 +178,59 @@ const getAllAdminMetaDataFromDB = () => __awaiter(void 0, void 0, void 0, functi
         failedProductSummary,
     };
 });
+const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    const files = req.files;
+    const homePageData = req.body;
+    if (req.files) {
+        if (files.sliderImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.sliderImages = imageUrl.sliderImages;
+        }
+        if (files.heroImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.heroImages = imageUrl.heroImages;
+        }
+        if (files.hotDealImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.hotDealImages = imageUrl.hotDealImages;
+        }
+        if (files.hotMainImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.hotMainImages = imageUrl.hotMainImages;
+        }
+        if (files.reviewImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.reviewImages = imageUrl.reviewImages;
+        }
+        if (files.reviewMainImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.reviewMainImages = imageUrl.reviewMainImages;
+        }
+        if (files.footerImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            homePageData.footerImages = imageUrl.footerImages;
+        }
+    }
+    const result = yield prisma_1.default.homePageImages.upsert({
+        where: {
+            id: "home_page_single_entry",
+        },
+        update: homePageData,
+        create: Object.assign({ id: "home_page_single_entry" }, homePageData),
+    });
+    return result;
+});
+const getHomePageImages = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.homePageImages.findFirstOrThrow({
+        where: {
+            id: "home_page_single_entry",
+        },
+    });
+    return result;
+});
 exports.VendorMetaServices = {
     getMyVendorMetaDataFromDB,
     getAllAdminMetaDataFromDB,
+    createHomePageImages,
+    getHomePageImages
 };

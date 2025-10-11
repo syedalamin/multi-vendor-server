@@ -27,7 +27,6 @@ const getMyVendorMetaDataFromDB = (0, catchAsync_1.default)((req, res) => __awai
     });
 }));
 const getAllAdminMetaDataFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
     const result = yield meta_services_1.VendorMetaServices.getAllAdminMetaDataFromDB();
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
@@ -35,7 +34,25 @@ const getAllAdminMetaDataFromDB = (0, catchAsync_1.default)((req, res) => __awai
         data: result,
     });
 }));
+const createHomePageImages = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield meta_services_1.VendorMetaServices.createHomePageImages(req);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: "Image are created successfully",
+        data: result,
+    });
+}));
+const getHomePageImages = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield meta_services_1.VendorMetaServices.getHomePageImages();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: "Image are retrieved successfully",
+        data: result,
+    });
+}));
 exports.VendorMetaControllers = {
     getMyVendorMetaDataFromDB,
-    getAllAdminMetaDataFromDB
+    getAllAdminMetaDataFromDB,
+    createHomePageImages,
+    getHomePageImages,
 };
