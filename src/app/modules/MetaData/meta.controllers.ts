@@ -17,9 +17,7 @@ const getMyVendorMetaDataFromDB = catchAsync(async (req, res) => {
   });
 });
 const getAllAdminMetaDataFromDB = catchAsync(async (req, res) => {
-  const user = req.user;
-  const result = await VendorMetaServices.getAllAdminMetaDataFromDB(
-  );
+  const result = await VendorMetaServices.getAllAdminMetaDataFromDB();
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -27,8 +25,26 @@ const getAllAdminMetaDataFromDB = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const createHomePageImages = catchAsync(async (req, res) => {
+  const result = await VendorMetaServices.createHomePageImages(req);
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Image are created successfully",
+    data: result,
+  });
+});
+const getHomePageImages = catchAsync(async (req, res) => {
+  const result = await VendorMetaServices.getHomePageImages();
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Image are retrieved successfully",
+    data: result,
+  });
+});
 
 export const VendorMetaControllers = {
   getMyVendorMetaDataFromDB,
-  getAllAdminMetaDataFromDB
+  getAllAdminMetaDataFromDB,
+  createHomePageImages,
+  getHomePageImages,
 };

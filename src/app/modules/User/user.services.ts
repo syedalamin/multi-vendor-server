@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { Request } from "express";
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";
-import { ICloudinaryUploadResponse } from "../../../interface/file";
+ 
 import { IPaginationOptions } from "../../../interface/pagination";
 import {
   allowedSortOrder,
@@ -11,14 +11,14 @@ import {
 } from "../../../utils/pagination/pagination";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
 import { buildSortCondition } from "../../../utils/search/buildSortCondition";
-import sendImageToCloudinary from "../../../utils/sendCloudinary";
+ 
 import ApiError from "../../../utils/share/apiError";
 import prisma from "../../../utils/share/prisma";
 import { generateSlug } from "../../../utils/slug/generateSlug";
 import { userSearchAbleFields } from "./user.constants";
 import { IUserFilterRequest } from "./user.interface";
 import sendToCPanel from "../../../utils/sendCPanel";
-import sendImagesToCPanel from "../../../utils/sendImagesToCPanel";
+ 
 import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
 
 const createAdmin = async (req: Request): Promise<Admin> => {

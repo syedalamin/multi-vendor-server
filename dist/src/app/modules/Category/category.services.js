@@ -71,6 +71,7 @@ const getAllCategoryFromDB = (filters, options) => __awaiter(void 0, void 0, voi
                     image: true,
                     categoryId: true,
                     isDeleted: true,
+                    slug: true,
                 },
             },
         },

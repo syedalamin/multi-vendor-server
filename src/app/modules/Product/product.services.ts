@@ -1,12 +1,12 @@
 import { ProductStatus, UserRole } from "@prisma/client";
 import { Request } from "express";
 import status from "http-status";
-import { ICloudinaryUploadResponse } from "../../../interface/file";
+ 
 import { IPaginationOptions } from "../../../interface/pagination";
 import { allowedSortOrder } from "../../../utils/pagination/pagination";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
 import { buildSortCondition } from "../../../utils/search/buildSortCondition";
-import sendImageToCloudinary from "../../../utils/sendCloudinary";
+ 
 import ApiError from "../../../utils/share/apiError";
 import prisma from "../../../utils/share/prisma";
 import { generateSku, generateSlug } from "../../../utils/slug/generateSlug";

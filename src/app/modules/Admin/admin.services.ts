@@ -12,8 +12,7 @@ import { Admin, UserStatus } from "@prisma/client";
 import { Request } from "express";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
-import sendImageToCloudinary from "../../../utils/sendCloudinary";
-import { ICloudinaryUploadResponse } from "../../../interface/file";
+ 
 import sendToCPanel from "../../../utils/sendCPanel";
 
 const getAllAdmins = async (

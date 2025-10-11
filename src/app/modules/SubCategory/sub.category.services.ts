@@ -2,7 +2,7 @@ import { Request } from "express";
 import prisma from "../../../utils/share/prisma";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
- 
+
 import { generateSlug } from "../../../utils/slug/generateSlug";
 import { Prisma, ProductStatus } from "@prisma/client";
 import { IPaginationOptions } from "../../../interface/pagination";
@@ -76,6 +76,27 @@ const getAllSubCategoryFromDB = async (
     where: whereConditions,
     skip,
     take: limit,
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          image: true,
+        },
+      },
+      product: {
+        where: {
+          status: {
+            in: [
+              ProductStatus.ACTIVE,
+              ProductStatus.DISCONTINUED,
+              ProductStatus.OUT_OF_STOCK,
+            ],
+          },
+        },
+      },
+    },
     orderBy:
       sortBy && sortOrder
         ? {

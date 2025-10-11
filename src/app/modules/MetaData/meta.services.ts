@@ -1,6 +1,9 @@
 import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../utils/share/prisma";
 import { OrderPaymentStatus, UserRole, UserStatus } from "@prisma/client";
+import { Request } from "express";
+import sendImagesToCPanel from "../../../utils/sendImagesToCPanel";
+import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
 
 const getMyVendorMetaDataFromDB = async (user: JwtPayload) => {
   const userInfo = await prisma.user.findFirstOrThrow({
@@ -107,8 +110,6 @@ const getMyVendorMetaDataFromDB = async (user: JwtPayload) => {
   };
 };
 
-
-
 const getAllAdminMetaDataFromDB = async () => {
   const allUser = await prisma.user.aggregate({
     _count: { id: true },
@@ -123,11 +124,9 @@ const getAllAdminMetaDataFromDB = async () => {
     _count: { id: true },
   });
 
-
   const isOrderExists = await prisma.order.findMany({
     include: { orderItem: true },
   });
-
 
   const pendingSummary = await prisma.order.aggregate({
     where: { paymentStatus: OrderPaymentStatus.PENDING },
@@ -145,12 +144,10 @@ const getAllAdminMetaDataFromDB = async () => {
     _sum: { totalAmount: true },
   });
 
-
   const orderSummary = await prisma.order.aggregate({
     _count: { id: true },
     _sum: { totalAmount: true, deliveryCharge: true },
   });
-
 
   const pendingOrderIds = isOrderExists
     .filter((order) => order.paymentStatus === OrderPaymentStatus.PENDING)
@@ -163,7 +160,6 @@ const getAllAdminMetaDataFromDB = async () => {
   const failedOrderIds = isOrderExists
     .filter((order) => order.paymentStatus === OrderPaymentStatus.FAILED)
     .map((order) => order.id);
-
 
   const getProductSummaryByOrderIds = async (orderIds: string[]) => {
     const summary = await prisma.orderItem.groupBy({
@@ -183,10 +179,13 @@ const getAllAdminMetaDataFromDB = async () => {
     );
   };
 
-
-  const pendingProductSummary = await getProductSummaryByOrderIds(pendingOrderIds);
+  const pendingProductSummary = await getProductSummaryByOrderIds(
+    pendingOrderIds
+  );
   const paidProductSummary = await getProductSummaryByOrderIds(paidOrderIds);
-  const failedProductSummary = await getProductSummaryByOrderIds(failedOrderIds);
+  const failedProductSummary = await getProductSummaryByOrderIds(
+    failedOrderIds
+  );
 
   return {
     allUser,
@@ -203,8 +202,68 @@ const getAllAdminMetaDataFromDB = async () => {
   };
 };
 
+const createHomePageImages = async (req: Request) => {
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const homePageData = req.body;
+
+  if (req.files) {
+    if (files.sliderImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.sliderImages = imageUrl.sliderImages;
+    }
+    if (files.heroImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.heroImages = imageUrl.heroImages;
+    }
+    if (files.hotDealImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.hotDealImages = imageUrl.hotDealImages;
+    }
+    if (files.hotMainImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.hotMainImages = imageUrl.hotMainImages;
+    }
+    if (files.reviewImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.reviewImages = imageUrl.reviewImages;
+    }
+    if (files.reviewMainImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.reviewMainImages = imageUrl.reviewMainImages;
+    }
+    if (files.footerImages) {
+      const imageUrl = sendShopImageToCPanel(req);
+      homePageData.footerImages = imageUrl.footerImages;
+    }
+  }
+
+  const result = await prisma.homePageImages.upsert({
+    where: {
+      id: "home_page_single_entry",
+    },
+    update: homePageData,
+    create: {
+      id: "home_page_single_entry",
+      ...homePageData,
+    },
+  });
+
+  return result;
+};
+
+const getHomePageImages = async () => {
+  const result = await prisma.homePageImages.findFirstOrThrow({
+    where: {
+      id: "home_page_single_entry",
+    },
+  });
+
+  return result;
+};
 
 export const VendorMetaServices = {
   getMyVendorMetaDataFromDB,
   getAllAdminMetaDataFromDB,
+  createHomePageImages,
+  getHomePageImages
 };
