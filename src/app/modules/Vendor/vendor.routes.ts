@@ -13,7 +13,7 @@ router.get("/", auth(UserRole.ADMIN), VendorControllers.getAllDataFromDB);
 router.get("/:id", auth(UserRole.ADMIN), VendorControllers.getByIdFromDB);
 router.patch(
   "/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, UserRole.VENDOR),
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "banner", maxCount: 1 },
@@ -22,8 +22,16 @@ router.patch(
   validateRequest(VendorValidation.vendorUpdateValidation),
   VendorControllers.updateByIdIntoDB
 );
-router.patch("/verify/:id", auth(UserRole.ADMIN), VendorControllers.verifyUpdateByIdIntoDB);
+router.patch(
+  "/verify/:id",
+  auth(UserRole.ADMIN),
+  VendorControllers.verifyUpdateByIdIntoDB
+);
 router.delete("/:id", auth(UserRole.ADMIN), VendorControllers.deleteByIdFromDB);
-router.delete("/soft/:id", auth(UserRole.ADMIN), VendorControllers.softDeleteByIdFromDB);
+router.delete(
+  "/soft/:id",
+  auth(UserRole.ADMIN),
+  VendorControllers.softDeleteByIdFromDB
+);
 
 export const VendorRoutes = router;

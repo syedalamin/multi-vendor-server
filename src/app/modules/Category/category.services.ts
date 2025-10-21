@@ -2,8 +2,7 @@ import { Request } from "express";
 import prisma from "../../../utils/share/prisma";
 import ApiError from "../../../utils/share/apiError";
 import status from "http-status";
-import sendImageToCloudinary from "../../../utils/sendCloudinary";
-import { ICloudinaryUploadResponse } from "../../../interface/file";
+ 
 import { generateSlug } from "../../../utils/slug/generateSlug";
 import { Prisma } from "@prisma/client";
 import { IPaginationOptions } from "../../../interface/pagination";

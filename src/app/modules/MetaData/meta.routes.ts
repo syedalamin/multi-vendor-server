@@ -19,23 +19,21 @@ router.get(
   VendorMetaControllers.getAllAdminMetaDataFromDB
 );
 
-router.get(
-  "/image",
-  VendorMetaControllers.getHomePageImages
-);
+router.get("/image", VendorMetaControllers.getHomePageImages);
 
 router.post(
   "/images",
   auth(UserRole.ADMIN),
   upload.fields([
     { name: "sliderImages", maxCount: 5 },
-    { name: "heroImages", maxCount: 3 },
+    { name: "heroImages", maxCount: 5 },
     { name: "hotDealImages", maxCount: 2 },
     { name: "hotMainImages", maxCount: 2 },
     { name: "reviewImages", maxCount: 5 },
     { name: "reviewMainImages", maxCount: 2 },
     { name: "footerImages", maxCount: 2 },
   ]),
+  formDataParser,
 
   VendorMetaControllers.createHomePageImages
 );

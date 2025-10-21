@@ -12,9 +12,9 @@ import { IVendorFilterRequest } from "./vendor.interface";
 import { Request } from "express";
 import status from "http-status";
 import ApiError from "../../../utils/share/apiError";
-import sendImageToCloudinary from "../../../utils/sendCloudinary";
-import { ICloudinaryUploadResponse } from "../../../interface/file";
+
 import { generateSlug } from "../../../utils/slug/generateSlug";
+import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
 
 const getAllDataFromDB = async (
   filters: IVendorFilterRequest,
@@ -82,6 +82,7 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
   const isVendorExist = await prisma.vendor.findFirst({
     where: {
       id,
+
       isBlocked: false,
     },
   });
@@ -94,6 +95,9 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
     const isExistsShopName = await prisma.vendor.findUnique({
       where: {
         shopSlug: slug,
+        NOT: {
+          id: id,
+        },
       },
     });
 
@@ -104,29 +108,21 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
     }
   }
 
-  if (files) {
+  if (req.files) {
     if (files.logo) {
-      const uploadResult = await Promise.all(
-        files.logo.map((file) => sendImageToCloudinary(file))
-      );
+      const imageUrl = sendShopImageToCPanel(req);
+      const imageString = imageUrl.logo[0];
 
-      const imageUrl = uploadResult.map(
-        (result) => (result as ICloudinaryUploadResponse)?.secure_url
-      );
-      vendorData.logo = imageUrl[0];
+      vendorData.logo = imageString;
     }
     if (files.banner) {
-      const uploadResult = await Promise.all(
-        files.banner.map((file) => sendImageToCloudinary(file))
-      );
-
-      const imageUrl = uploadResult.map(
-        (result) => (result as ICloudinaryUploadResponse)?.secure_url
-      );
-      vendorData.banner = imageUrl[0];
+      const imageUrl = sendShopImageToCPanel(req);
+      const imageString = imageUrl.banner[0];
+      vendorData.banner = imageString;
     }
   }
 
+ 
   const result = await prisma.vendor.update({
     where: {
       id: isVendorExist.id,

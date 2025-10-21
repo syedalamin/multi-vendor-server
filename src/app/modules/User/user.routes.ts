@@ -44,7 +44,7 @@ router.get(
 router.get("/:id", auth(UserRole.ADMIN), UserControllers.getByIdFromDB);
 router.patch(
   "/me",
-  auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
+  auth(UserRole.ADMIN, UserRole.CUSTOMER),
   upload.single("file"),
   formDataParser,
   validateRequest(UserValidations.myProfileValidation),

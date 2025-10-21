@@ -84,13 +84,7 @@ const updateByIdFrmDB = async (id: string, req: Request): Promise<Admin> => {
   if (!isUserExist) {
     throw new ApiError(status.NOT_FOUND, "User is not found");
   }
-
-  // if (req.file) {
-  //   const { secure_url } = (await sendImageToCloudinary(
-  //     req.file
-  //   )) as ICloudinaryUploadResponse;
-  //   req.body.profilePhoto = secure_url;
-  // }
+ 
 
   if (req.file) {
     const fileUrl = sendToCPanel(req);

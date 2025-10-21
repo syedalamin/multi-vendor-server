@@ -2,7 +2,7 @@ import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../utils/share/prisma";
 import { OrderPaymentStatus, UserRole, UserStatus } from "@prisma/client";
 import { Request } from "express";
-import sendImagesToCPanel from "../../../utils/sendImagesToCPanel";
+
 import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
 
 const getMyVendorMetaDataFromDB = async (user: JwtPayload) => {
@@ -204,8 +204,8 @@ const getAllAdminMetaDataFromDB = async () => {
 
 const createHomePageImages = async (req: Request) => {
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-  const homePageData = req.body;
 
+  const homePageData = req.body;
   if (req.files) {
     if (files.sliderImages) {
       const imageUrl = sendShopImageToCPanel(req);
@@ -237,6 +237,12 @@ const createHomePageImages = async (req: Request) => {
     }
   }
 
+  if (homePageData.hours !== undefined)
+    homePageData.hours = Number(homePageData.hours);
+  if (homePageData.minutes !== undefined)
+    homePageData.minutes = Number(homePageData.minutes);
+ 
+
   const result = await prisma.homePageImages.upsert({
     where: {
       id: "home_page_single_entry",
@@ -265,5 +271,5 @@ export const VendorMetaServices = {
   getMyVendorMetaDataFromDB,
   getAllAdminMetaDataFromDB,
   createHomePageImages,
-  getHomePageImages
+  getHomePageImages,
 };

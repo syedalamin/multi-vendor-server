@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { Request } from "express";
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";
- 
+
 import { IPaginationOptions } from "../../../interface/pagination";
 import {
   allowedSortOrder,
@@ -11,14 +11,14 @@ import {
 } from "../../../utils/pagination/pagination";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
 import { buildSortCondition } from "../../../utils/search/buildSortCondition";
- 
+
 import ApiError from "../../../utils/share/apiError";
 import prisma from "../../../utils/share/prisma";
 import { generateSlug } from "../../../utils/slug/generateSlug";
 import { userSearchAbleFields } from "./user.constants";
 import { IUserFilterRequest } from "./user.interface";
 import sendToCPanel from "../../../utils/sendCPanel";
- 
+
 import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
@@ -104,7 +104,6 @@ const createVendor = async (req: Request) => {
       vendorData.vendor.shopSlug = slug;
     }
   }
- 
 
   const result = await prisma.$transaction(async (transactionClient) => {
     await transactionClient.user.create({
@@ -119,8 +118,8 @@ const createVendor = async (req: Request) => {
   });
 
   return result;
-
 };
+
 
 const createCustomer = async (req: Request) => {
   const isUserExist = await prisma.customer.findFirst({
@@ -274,18 +273,15 @@ const updateMyProfile = async (req: Request, user?: JwtPayload) => {
 
   let updatedData = { ...req.body };
 
-  // if (req.file) {
-  //   const { secure_url } = (await sendImageToCloudinary(
-  //     req.file
-  //   )) as ICloudinaryUploadResponse;
-  //   updatedData.profilePhoto = secure_url;
-  // }
+ 
 
   if (req.file) {
     const fileUrl = sendToCPanel(req);
 
-    req.body.profilePhoto = fileUrl;
+    updatedData.profilePhoto = fileUrl;
+   
   }
+  
 
   let profileInfo;
   if (userInfo.role == UserRole.ADMIN) {
