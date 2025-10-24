@@ -71,12 +71,6 @@ const updateByIdFrmDB = (id, req) => __awaiter(void 0, void 0, void 0, function*
     if (!isUserExist) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "User is not found");
     }
-    // if (req.file) {
-    //   const { secure_url } = (await sendImageToCloudinary(
-    //     req.file
-    //   )) as ICloudinaryUploadResponse;
-    //   req.body.profilePhoto = secure_url;
-    // }
     if (req.file) {
         const fileUrl = (0, sendCPanel_1.default)(req);
         req.body.profilePhoto = fileUrl;

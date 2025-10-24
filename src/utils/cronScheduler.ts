@@ -1,63 +1,60 @@
 import cron from "node-cron";
 import prisma from "./share/prisma";
- 
+import { Decimal } from "@prisma/client/runtime/library";
 
 let countdownTask: any = null;
 
- 
 async function getCountdown() {
   const settings = await prisma.homePageImages.findUnique({
     where: { id: "home_page_single_entry" },
   });
-  if (!settings) return 0;
- 
-  return (settings.hours || 0) * 60 + (settings.minutes || 0);
+  if (!settings) return new Decimal(0);
+
+  const hours = new Decimal(settings.hours);
+  const minutes = new Decimal(settings.minutes);
+
+  return hours.mul(60).add(minutes); // Decimal arithmetic
 }
 
- 
 async function decreaseCountdown() {
   const settings = await prisma.homePageImages.findUnique({
     where: { id: "home_page_single_entry" },
   });
-
   if (!settings) return;
 
-  const totalMinutes = (settings.hours || 0) * 60 + (settings.minutes || 0);
+  const hours = new Decimal(settings.hours);
+  const minutes = new Decimal(settings.minutes);
 
-  if (totalMinutes > 0) {
-    const newTotal = totalMinutes - 1;
-    const newHours = Math.floor(newTotal / 60);
-    const newMinutes = newTotal % 60;
+  let totalMinutes = hours.mul(60).add(minutes);
+
+  if (totalMinutes.gt(0)) {
+    totalMinutes = totalMinutes.sub(1);
+
+    const newHours = totalMinutes.div(60).floor();
+    const newMinutes = totalMinutes.mod(60);
 
     await prisma.homePageImages.update({
       where: { id: "home_page_single_entry" },
-      data: { hours: newHours, minutes: newMinutes },
+      data: {
+        hours: newHours,
+        minutes: newMinutes,
+      },
     });
 
-    // console.log(
-    //   `⏱ Countdown updated → ${newHours}h ${newMinutes}m (at ${new Date().toLocaleTimeString()})`
-    // );
-
-    if (newTotal <= 0) {
-   
-      stopCountdownCron();
-    }
+    if (totalMinutes.lte(0)) stopCountdownCron();
   } else {
- 
     stopCountdownCron();
   }
 }
 
- 
 export async function startCountdownCron() {
-  const total = await getCountdown();
-  if (total <= 0) {
-    
-    return;
+  if (countdownTask) {
+    countdownTask.stop();
+    countdownTask = null;
   }
 
-  if (countdownTask) {
-   
+  const total = await getCountdown();
+  if (total.lte(0)) {
     return;
   }
 
@@ -66,14 +63,11 @@ export async function startCountdownCron() {
   });
 
   countdownTask.start();
- 
 }
 
- 
 export function stopCountdownCron() {
   if (countdownTask) {
     countdownTask.stop();
     countdownTask = null;
-    console.log("🛑 Countdown cron stopped.");
   }
 }

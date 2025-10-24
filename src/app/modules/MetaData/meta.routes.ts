@@ -21,17 +21,17 @@ router.get(
 
 router.get("/image", VendorMetaControllers.getHomePageImages);
 
-router.post(
+router.patch(
   "/images",
-  auth(UserRole.ADMIN),
+  // auth(UserRole.ADMIN),
   upload.fields([
     { name: "sliderImages", maxCount: 5 },
     { name: "heroImages", maxCount: 5 },
-    { name: "hotDealImages", maxCount: 2 },
-    { name: "hotMainImages", maxCount: 2 },
+    { name: "hotDealImages", maxCount: 5 },
+    { name: "hotMainImages", maxCount: 5 },
     { name: "reviewImages", maxCount: 5 },
-    { name: "reviewMainImages", maxCount: 2 },
-    { name: "footerImages", maxCount: 2 },
+    { name: "reviewMainImages", maxCount: 5 },
+    { name: "footerImages", maxCount: 5 },
   ]),
   formDataParser,
 

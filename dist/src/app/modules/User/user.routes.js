@@ -24,7 +24,7 @@ fileUploader_1.upload.single("file"), formDataParser_1.default, (0, validateRequ
 router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controllers_1.UserControllers.getAllUserFromDB);
 router.get("/me", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER, client_1.UserRole.VENDOR), user_controllers_1.UserControllers.getMyProfile);
 router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controllers_1.UserControllers.getByIdFromDB);
-router.patch("/me", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER, client_1.UserRole.VENDOR), fileUploader_1.upload.single("file"), formDataParser_1.default, (0, validateRequest_1.default)(user_validation_1.UserValidations.myProfileValidation), user_controllers_1.UserControllers.updateMyProfile);
+router.patch("/me", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER), fileUploader_1.upload.single("file"), formDataParser_1.default, (0, validateRequest_1.default)(user_validation_1.UserValidations.myProfileValidation), user_controllers_1.UserControllers.updateMyProfile);
 router.patch("/change-status/:email", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controllers_1.UserControllers.changeUserStatus);
 router.patch("/update-role/:email", (0, auth_1.default)(client_1.UserRole.ADMIN), 
 // validateRequest(UserValidations.myProfileValidation),

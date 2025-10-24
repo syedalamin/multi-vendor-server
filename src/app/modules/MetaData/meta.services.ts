@@ -4,6 +4,8 @@ import { OrderPaymentStatus, UserRole, UserStatus } from "@prisma/client";
 import { Request } from "express";
 
 import sendShopImageToCPanel from "../../../utils/sendShopImageToCPanel";
+import deleteImagesFromCPanel from "../../../utils/deleteImagesFromCPanel";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const getMyVendorMetaDataFromDB = async (user: JwtPayload) => {
   const userInfo = await prisma.user.findFirstOrThrow({
@@ -204,53 +206,146 @@ const getAllAdminMetaDataFromDB = async () => {
 
 const createHomePageImages = async (req: Request) => {
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-  const homePageData = req.body;
-  if (req.files) {
-    if (files.sliderImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.sliderImages = imageUrl.sliderImages;
-    }
-    if (files.heroImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.heroImages = imageUrl.heroImages;
-    }
-    if (files.hotDealImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.hotDealImages = imageUrl.hotDealImages;
-    }
-    if (files.hotMainImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.hotMainImages = imageUrl.hotMainImages;
-    }
-    if (files.reviewImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.reviewImages = imageUrl.reviewImages;
-    }
-    if (files.reviewMainImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.reviewMainImages = imageUrl.reviewMainImages;
-    }
-    if (files.footerImages) {
-      const imageUrl = sendShopImageToCPanel(req);
-      homePageData.footerImages = imageUrl.footerImages;
-    }
-  }
-
-  if (homePageData.hours !== undefined)
-    homePageData.hours = Number(homePageData.hours);
-  if (homePageData.minutes !== undefined)
-    homePageData.minutes = Number(homePageData.minutes);
  
 
-  const result = await prisma.homePageImages.upsert({
+  let homePageData = req.body;
+
+  const existingImage = await prisma.homePageImages.findUniqueOrThrow({
     where: {
       id: "home_page_single_entry",
     },
-    update: homePageData,
-    create: {
+  });
+  let sliderImages = existingImage.sliderImages || [];
+  let heroImages = existingImage.heroImages || [];
+  let hotDealImages = existingImage.hotDealImages || [];
+  let hotMainImages = existingImage.hotMainImages || [];
+  let reviewImages = existingImage.reviewImages || [];
+  let reviewMainImages = existingImage.reviewMainImages || [];
+  let footerImages = existingImage.footerImages || [];
+
+  // removeSliderImages
+  // removeHeroImages
+  // removeHotDealImages
+  // removeHotMainImages
+  // removeReviewImages
+  // removeReviewMainImages
+  // removeFooterImages
+
+  if (
+    homePageData.removeFooterImages &&
+    Array.isArray(homePageData.removeFooterImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeFooterImages);
+    footerImages = footerImages.filter(
+      (img) => !homePageData.removeFooterImages.includes(img)
+    );
+  }
+  if (
+    homePageData.removeReviewMainImages &&
+    Array.isArray(homePageData.removeReviewMainImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeReviewMainImages);
+    reviewMainImages = reviewMainImages.filter(
+      (img) => !homePageData.removeReviewMainImages.includes(img)
+    );
+  }
+  if (
+    homePageData.removeReviewImages &&
+    Array.isArray(homePageData.removeReviewImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeReviewImages);
+    reviewImages = reviewImages.filter(
+      (img) => !homePageData.removeReviewImages.includes(img)
+    );
+  }
+  if (
+    homePageData.removeHotMainImages &&
+    Array.isArray(homePageData.removeHotMainImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeHotMainImages);
+    hotMainImages = hotMainImages.filter(
+      (img) => !homePageData.removeHotMainImages.includes(img)
+    );
+  }
+  if (
+    homePageData.removeHotDealImages &&
+    Array.isArray(homePageData.removeHotDealImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeHotDealImages);
+    hotDealImages = hotDealImages.filter(
+      (img) => !homePageData.removeHotDealImages.includes(img)
+    );
+  }
+  if (
+    homePageData.removeHeroImages &&
+    Array.isArray(homePageData.removeHeroImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeHeroImages);
+    heroImages = heroImages.filter(
+      (img) => !homePageData.removeHeroImages.includes(img)
+    );
+  }
+  if (
+    homePageData.removeSliderImages &&
+    Array.isArray(homePageData.removeSliderImages)
+  ) {
+    await deleteImagesFromCPanel(homePageData.removeSliderImages);
+    sliderImages = sliderImages.filter(
+      (img) => !homePageData.removeSliderImages.includes(img)
+    );
+  }
+
+  if (req.files) {
+    if (files.sliderImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      sliderImages = [...sliderImages, ...imageUrl.sliderImages];
+    }
+    if (files.heroImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      heroImages = [...heroImages, ...imageUrl.heroImages];
+    }
+    if (files.hotDealImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      hotDealImages = [...hotDealImages, ...imageUrl.hotDealImages];
+    }
+    if (files.hotMainImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      hotMainImages = [...hotMainImages, ...imageUrl.hotMainImages];
+    }
+    if (files.reviewImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      reviewImages = [...reviewImages, ...imageUrl.reviewImages];
+    }
+    if (files.reviewMainImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      reviewMainImages = [...reviewMainImages, ...imageUrl.reviewMainImages];
+    }
+    if (files.footerImages) {
+      const imageUrl = await sendShopImageToCPanel(req);
+      footerImages = [...footerImages, ...imageUrl.footerImages];
+    }
+  }
+
+  let hours = existingImage.hours;
+  let minutes = existingImage.minutes;
+  if (homePageData.hours !== undefined) hours = new Decimal(homePageData.hours);
+  if (homePageData.minutes !== undefined)
+    minutes = new Decimal(homePageData.minutes);
+
+  const result = await prisma.homePageImages.update({
+    where: {
       id: "home_page_single_entry",
-      ...homePageData,
+    },
+    data: {
+      sliderImages: sliderImages,
+      heroImages: heroImages,
+      hotDealImages: hotDealImages,
+      hotMainImages: hotMainImages,
+      reviewImages: reviewImages,
+      reviewMainImages: reviewMainImages,
+      footerImages: footerImages,
+      hours: hours,
+      minutes: minutes,
     },
   });
 

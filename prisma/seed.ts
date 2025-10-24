@@ -8,7 +8,7 @@ const seedAdmin = async () => {
   try {
     const isUserExist = await prisma.admin.findFirst({
       where: {
-        email: "trusty@gmail.com",
+        email: "trustyshoptbd@gmail.com",
       },
     });
 
@@ -16,15 +16,15 @@ const seedAdmin = async () => {
       throw new ApiError(status.CONFLICT, "User is already exists");
     }
 
-    const hashedPassword: string = await bcrypt.hash("trusty@gmail.com", 12);
+    const hashedPassword: string = await bcrypt.hash("trustyshoptbd@gmail.com", 12);
 
     const userData = {
-      email: "trusty@gmail.com",
+      email: "trustyshoptbd@gmail.com",
       password: hashedPassword,
       role: UserRole.ADMIN,
     };
 
-    const result = await prisma.$transaction(async (transactionClient) => {
+     await prisma.$transaction(async (transactionClient) => {
       const user = await transactionClient.user.create({
         data: userData,
       });
@@ -43,7 +43,7 @@ const seedAdmin = async () => {
       return createdAdminData;
     });
 
-    console.log("Admin Seed completed:", result);
+ 
   } catch (err) {
     console.error("Admin Seed failed:", err);
   } finally {
@@ -51,4 +51,18 @@ const seedAdmin = async () => {
   }
 };
 
+const createHomePageImages = async () => {
+  try {
+    await prisma.homePageImages.create({
+      data: {
+        id: "home_page_single_entry",
+      },
+    });
+  } catch (err) {
+    console.error("Admin Seed failed:", err);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+createHomePageImages();
 seedAdmin();

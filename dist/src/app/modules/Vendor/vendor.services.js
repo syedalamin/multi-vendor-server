@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VendorServices = void 0;
-const client_1 = require("@prisma/client");
 const pagination_1 = require("../../../utils/pagination/pagination");
 const buildSearchAndFilterCondition_1 = require("../../../utils/search/buildSearchAndFilterCondition");
 const buildSortCondition_1 = require("../../../utils/search/buildSortCondition");
@@ -21,8 +20,8 @@ const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const vendor_constant_1 = require("./vendor.constant");
 const http_status_1 = __importDefault(require("http-status"));
 const apiError_1 = __importDefault(require("../../../utils/share/apiError"));
-const sendCloudinary_1 = __importDefault(require("../../../utils/sendCloudinary"));
 const generateSlug_1 = require("../../../utils/slug/generateSlug");
+const sendShopImageToCPanel_1 = __importDefault(require("../../../utils/sendShopImageToCPanel"));
 const getAllDataFromDB = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { limit, page, skip, sortBy, sortOrder } = (0, buildSortCondition_1.buildSortCondition)(options, vendor_constant_1.allowedVendorSortFields, pagination_1.allowedSortOrder);
     // search
@@ -78,6 +77,9 @@ const updateByIdIntoDB = (id, req) => __awaiter(void 0, void 0, void 0, function
         const isExistsShopName = yield prisma_1.default.vendor.findUnique({
             where: {
                 shopSlug: slug,
+                NOT: {
+                    id: id,
+                },
             },
         });
         if (isExistsShopName) {
@@ -87,16 +89,16 @@ const updateByIdIntoDB = (id, req) => __awaiter(void 0, void 0, void 0, function
             vendorData.shopSlug = slug;
         }
     }
-    if (files) {
+    if (req.files) {
         if (files.logo) {
-            const uploadResult = yield Promise.all(files.logo.map((file) => (0, sendCloudinary_1.default)(file)));
-            const imageUrl = uploadResult.map((result) => result === null || result === void 0 ? void 0 : result.secure_url);
-            vendorData.logo = imageUrl[0];
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            const imageString = imageUrl.logo[0];
+            vendorData.logo = imageString;
         }
         if (files.banner) {
-            const uploadResult = yield Promise.all(files.banner.map((file) => (0, sendCloudinary_1.default)(file)));
-            const imageUrl = uploadResult.map((result) => result === null || result === void 0 ? void 0 : result.secure_url);
-            vendorData.banner = imageUrl[0];
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
+            const imageString = imageUrl.banner[0];
+            vendorData.banner = imageString;
         }
     }
     const result = yield prisma_1.default.vendor.update({
@@ -158,30 +160,14 @@ const softDeleteByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function*
     if (!isVendorExist) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Vendor is not found");
     }
-    const isUserExist = yield prisma_1.default.user.findUniqueOrThrow({
-        where: { email: isVendorExist.email },
+    const result = yield prisma_1.default.vendor.update({
+        where: {
+            id: isVendorExist.id,
+        },
+        data: {
+            isVerified: false,
+        },
     });
-    const isVendorBlocked = isVendorExist.isBlocked ? false : true;
-    const isUserBlocked = isUserExist.status == client_1.UserStatus.ACTIVE
-        ? client_1.UserStatus.BLOCKED
-        : client_1.UserStatus.ACTIVE;
-    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        yield transactionClient.user.update({
-            where: { email: isVendorExist.email },
-            data: {
-                status: isUserBlocked,
-            },
-        });
-        const result = yield prisma_1.default.vendor.update({
-            where: {
-                id: isVendorExist.id,
-            },
-            data: {
-                isBlocked: isVendorBlocked,
-            },
-        });
-        return result;
-    }));
     return result;
 });
 exports.VendorServices = {

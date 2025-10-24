@@ -227,15 +227,9 @@ const updateMyProfile = (req, user) => __awaiter(void 0, void 0, void 0, functio
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "User is not found");
     }
     let updatedData = Object.assign({}, req.body);
-    // if (req.file) {
-    //   const { secure_url } = (await sendImageToCloudinary(
-    //     req.file
-    //   )) as ICloudinaryUploadResponse;
-    //   updatedData.profilePhoto = secure_url;
-    // }
     if (req.file) {
         const fileUrl = (0, sendCPanel_1.default)(req);
-        req.body.profilePhoto = fileUrl;
+        updatedData.profilePhoto = fileUrl;
     }
     let profileInfo;
     if (userInfo.role == client_1.UserRole.ADMIN) {

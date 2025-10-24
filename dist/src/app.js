@@ -16,7 +16,9 @@ app.use((0, cors_1.default)({
         "https://multi-vendor-five.vercel.app",
         "https://trustyshoptbd.com",
         "http://localhost:3000",
+        "http://192.168.0.102:3000",
     ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
 }));
 app.use(express_1.default.json());

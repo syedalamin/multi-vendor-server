@@ -59,4 +59,20 @@ const seedAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
         yield prisma_1.default.$disconnect();
     }
 });
+const createHomePageImages = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield prisma_1.default.homePageImages.create({
+            data: {
+                id: "home_page_single_entry",
+            },
+        });
+    }
+    catch (err) {
+        console.error("Admin Seed failed:", err);
+    }
+    finally {
+        yield prisma_1.default.$disconnect();
+    }
+});
+createHomePageImages();
 seedAdmin();

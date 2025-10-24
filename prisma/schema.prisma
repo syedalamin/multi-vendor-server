@@ -274,8 +274,8 @@ model HomePageImages {
   reviewImages     String[]
   reviewMainImages String[]
   footerImages     String[]
-  minutes          Int    
-  hours            Int     
+  minutes          Decimal  @default(0)
+  hours            Decimal  @default(0)
 
   @@map("homePageImages")
 }

@@ -16,6 +16,7 @@ exports.VendorMetaServices = void 0;
 const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const client_1 = require("@prisma/client");
 const sendShopImageToCPanel_1 = __importDefault(require("../../../utils/sendShopImageToCPanel"));
+const deleteImagesFromCPanel_1 = __importDefault(require("../../../utils/deleteImagesFromCPanel"));
 const getMyVendorMetaDataFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const userInfo = yield prisma_1.default.user.findFirstOrThrow({
         where: {
@@ -180,11 +181,29 @@ const getAllAdminMetaDataFromDB = () => __awaiter(void 0, void 0, void 0, functi
 });
 const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const files = req.files;
-    const homePageData = req.body;
+    let homePageData = req.body;
+    const existingImage = yield prisma_1.default.homePageImages.findUniqueOrThrow({
+        where: {
+            id: "home_page_single_entry",
+        },
+    });
+    let sliderImages = existingImage.sliderImages || [];
+    let heroImages = existingImage.heroImages || [];
+    let hotDealImages = existingImage.hotDealImages || [];
+    let hotMainImages = existingImage.hotMainImages || [];
+    let reviewImages = existingImage.reviewImages || [];
+    let reviewMainImages = existingImage.reviewMainImages || [];
+    let footerImages = existingImage.footerImages || [];
+    if (homePageData.removeSliderImages &&
+        Array.isArray(homePageData.removeSliderImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeSliderImages);
+        sliderImages = sliderImages.filter((img) => !homePageData.removeSliderImages.includes(img));
+    }
     if (req.files) {
         if (files.sliderImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.sliderImages = imageUrl.sliderImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            sliderImages = [...sliderImages, ...imageUrl.sliderImages];
+            homePageData.sliderImages = sliderImages;
         }
         if (files.heroImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
@@ -211,12 +230,15 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
             homePageData.footerImages = imageUrl.footerImages;
         }
     }
-    const result = yield prisma_1.default.homePageImages.upsert({
+    if (homePageData.hours !== undefined)
+        homePageData.hours = Number(homePageData.hours);
+    if (homePageData.minutes !== undefined)
+        homePageData.minutes = Number(homePageData.minutes);
+    const result = yield prisma_1.default.homePageImages.update({
         where: {
             id: "home_page_single_entry",
         },
-        update: homePageData,
-        create: Object.assign({ id: "home_page_single_entry" }, homePageData),
+        data: homePageData,
     });
     return result;
 });
@@ -232,5 +254,5 @@ exports.VendorMetaServices = {
     getMyVendorMetaDataFromDB,
     getAllAdminMetaDataFromDB,
     createHomePageImages,
-    getHomePageImages
+    getHomePageImages,
 };

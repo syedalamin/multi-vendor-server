@@ -30,7 +30,7 @@ router.patch(
 router.delete("/:id", auth(UserRole.ADMIN), VendorControllers.deleteByIdFromDB);
 router.delete(
   "/soft/:id",
-  auth(UserRole.ADMIN),
+  auth(UserRole.ADMIN, ),
   VendorControllers.softDeleteByIdFromDB
 );
 

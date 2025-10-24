@@ -72,7 +72,7 @@ const softDeleteByIdFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(v
     const result = yield vendor_services_1.VendorServices.softDeleteByIdFromDB(id);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
-        message: "Vendor is deleted successfully",
+        message: "Vendor is Blocked successfully",
         data: result,
     });
 }));
@@ -82,5 +82,5 @@ exports.VendorControllers = {
     updateByIdIntoDB,
     deleteByIdFromDB,
     verifyUpdateByIdIntoDB,
-    softDeleteByIdFromDB
+    softDeleteByIdFromDB,
 };

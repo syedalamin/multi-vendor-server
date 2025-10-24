@@ -4,6 +4,7 @@ import path from "path";
 const deleteImagesFromCPanel = async (imageUrls: string[]) => {
   if (!Array.isArray(imageUrls) || imageUrls.length === 0) return;
 
+  console.log(imageUrls)
   await Promise.all(
     imageUrls.map(async (imgUrl) => {
       try {

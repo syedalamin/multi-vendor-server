@@ -6,11 +6,10 @@ import pick from "../../../utils/search/pick";
 import { vendorFilterableFields } from "./vendor.constant";
 import { paginationFilterableField } from "../../../utils/pagination/pagination";
 
-
 const getAllDataFromDB = catchAsync(async (req, res) => {
   const filters = pick(req.query, vendorFilterableFields);
-    const options = pick(req.query, paginationFilterableField);
-  
+  const options = pick(req.query, paginationFilterableField);
+
   const result = await VendorServices.getAllDataFromDB(filters, options);
 
   sendResponse(res, {
@@ -21,7 +20,7 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
   });
 });
 const getByIdFromDB = catchAsync(async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const result = await VendorServices.getByIdFromDB(id);
 
   sendResponse(res, {
@@ -31,7 +30,7 @@ const getByIdFromDB = catchAsync(async (req, res) => {
   });
 });
 const verifyUpdateByIdIntoDB = catchAsync(async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const result = await VendorServices.verifyUpdateByIdIntoDB(id);
 
   sendResponse(res, {
@@ -52,7 +51,7 @@ const updateByIdIntoDB = catchAsync(async (req, res) => {
   });
 });
 const deleteByIdFromDB = catchAsync(async (req, res) => {
-  const {id} = req.params
+  const { id } = req.params;
   const result = await VendorServices.deleteByIdFromDB(id);
 
   sendResponse(res, {
@@ -62,22 +61,21 @@ const deleteByIdFromDB = catchAsync(async (req, res) => {
   });
 });
 const softDeleteByIdFromDB = catchAsync(async (req, res) => {
-  const {id} = req.params
+  const { id } = req.params;
   const result = await VendorServices.softDeleteByIdFromDB(id);
 
   sendResponse(res, {
     statusCode: status.OK,
-    message: "Vendor is deleted successfully",
+    message: "Vendor is Blocked successfully",
     data: result,
   });
 });
 
 export const VendorControllers = {
-
   getAllDataFromDB,
   getByIdFromDB,
   updateByIdIntoDB,
   deleteByIdFromDB,
   verifyUpdateByIdIntoDB,
-  softDeleteByIdFromDB
+  softDeleteByIdFromDB,
 };
