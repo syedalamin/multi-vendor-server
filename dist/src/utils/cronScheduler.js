@@ -25,8 +25,8 @@ function getCountdown() {
         });
         if (!settings)
             return new library_1.Decimal(0);
-        const hours = settings.hours || new library_1.Decimal(0);
-        const minutes = settings.minutes || new library_1.Decimal(0);
+        const hours = new library_1.Decimal(settings.hours);
+        const minutes = new library_1.Decimal(settings.minutes);
         return hours.mul(60).add(minutes); // Decimal arithmetic
     });
 }
@@ -37,13 +37,13 @@ function decreaseCountdown() {
         });
         if (!settings)
             return;
-        const hours = settings.hours || new library_1.Decimal(0);
-        const minutes = settings.minutes || new library_1.Decimal(0);
+        const hours = new library_1.Decimal(settings.hours);
+        const minutes = new library_1.Decimal(settings.minutes);
         let totalMinutes = hours.mul(60).add(minutes);
         if (totalMinutes.gt(0)) {
             totalMinutes = totalMinutes.sub(1);
-            const newHours = totalMinutes.div(60).floor(); // Decimal.div
-            const newMinutes = totalMinutes.mod(60); // Decimal.mod
+            const newHours = totalMinutes.div(60).floor();
+            const newMinutes = totalMinutes.mod(60);
             yield prisma_1.default.homePageImages.update({
                 where: { id: "home_page_single_entry" },
                 data: {
@@ -61,11 +61,14 @@ function decreaseCountdown() {
 }
 function startCountdownCron() {
     return __awaiter(this, void 0, void 0, function* () {
+        if (countdownTask) {
+            countdownTask.stop();
+            countdownTask = null;
+        }
         const total = yield getCountdown();
-        if (total.lte(0))
+        if (total.lte(0)) {
             return;
-        if (countdownTask)
-            return;
+        }
         countdownTask = node_cron_1.default.schedule("*/60 * * * * *", () => __awaiter(this, void 0, void 0, function* () {
             yield decreaseCountdown();
         }));
@@ -76,6 +79,5 @@ function stopCountdownCron() {
     if (countdownTask) {
         countdownTask.stop();
         countdownTask = null;
-        console.log("🛑 Countdown cron stopped.");
     }
 }

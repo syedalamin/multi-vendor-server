@@ -21,19 +21,19 @@ const seedAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const isUserExist = yield prisma_1.default.admin.findFirst({
             where: {
-                email: "trusty@gmail.com",
+                email: "trustyshoptbd@gmail.com",
             },
         });
         if (isUserExist) {
             throw new apiError_1.default(http_status_1.default.CONFLICT, "User is already exists");
         }
-        const hashedPassword = yield bcrypt_1.default.hash("trusty@gmail.com", 12);
+        const hashedPassword = yield bcrypt_1.default.hash("trustyshoptbd@gmail.com", 12);
         const userData = {
-            email: "trusty@gmail.com",
+            email: "trustyshoptbd@gmail.com",
             password: hashedPassword,
             role: client_1.UserRole.ADMIN,
         };
-        const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
+        yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
             const user = yield transactionClient.user.create({
                 data: userData,
             });
@@ -50,7 +50,6 @@ const seedAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
             });
             return createdAdminData;
         }));
-        console.log("Admin Seed completed:", result);
     }
     catch (err) {
         console.error("Admin Seed failed:", err);

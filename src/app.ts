@@ -4,7 +4,6 @@ import { Routers } from "./app/routers";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./utils/notFound";
 import cookieParser from "cookie-parser";
-import path from "path";
 
 const app = express();
 
@@ -13,7 +12,6 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "https://multi-vendor-five.vercel.app",
       "https://trustyshoptbd.com",
       "http://localhost:3000",
       "http://192.168.0.102:3000",
@@ -21,8 +19,10 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.options(/.*/, cors());
 
 app.use(express.json());
 app.use(cookieParser());

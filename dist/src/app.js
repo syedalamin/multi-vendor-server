@@ -26,6 +26,7 @@ app.use((0, cookie_parser_1.default)());
 //! routers use
 app.use("/api/v1", routers_1.Routers);
 app.use("/uploads", express_1.default.static("uploads"));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });

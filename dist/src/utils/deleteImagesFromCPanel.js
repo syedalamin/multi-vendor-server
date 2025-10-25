@@ -17,6 +17,7 @@ const path_1 = __importDefault(require("path"));
 const deleteImagesFromCPanel = (imageUrls) => __awaiter(void 0, void 0, void 0, function* () {
     if (!Array.isArray(imageUrls) || imageUrls.length === 0)
         return;
+    console.log(imageUrls);
     yield Promise.all(imageUrls.map((imgUrl) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const fileName = imgUrl.split("/uploads/")[1];

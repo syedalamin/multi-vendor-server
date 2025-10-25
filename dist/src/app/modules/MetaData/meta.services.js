@@ -17,6 +17,7 @@ const prisma_1 = __importDefault(require("../../../utils/share/prisma"));
 const client_1 = require("@prisma/client");
 const sendShopImageToCPanel_1 = __importDefault(require("../../../utils/sendShopImageToCPanel"));
 const deleteImagesFromCPanel_1 = __importDefault(require("../../../utils/deleteImagesFromCPanel"));
+const library_1 = require("@prisma/client/runtime/library");
 const getMyVendorMetaDataFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const userInfo = yield prisma_1.default.user.findFirstOrThrow({
         where: {
@@ -194,6 +195,43 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
     let reviewImages = existingImage.reviewImages || [];
     let reviewMainImages = existingImage.reviewMainImages || [];
     let footerImages = existingImage.footerImages || [];
+    // removeSliderImages
+    // removeHeroImages
+    // removeHotDealImages
+    // removeHotMainImages
+    // removeReviewImages
+    // removeReviewMainImages
+    // removeFooterImages
+    if (homePageData.removeFooterImages &&
+        Array.isArray(homePageData.removeFooterImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeFooterImages);
+        footerImages = footerImages.filter((img) => !homePageData.removeFooterImages.includes(img));
+    }
+    if (homePageData.removeReviewMainImages &&
+        Array.isArray(homePageData.removeReviewMainImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeReviewMainImages);
+        reviewMainImages = reviewMainImages.filter((img) => !homePageData.removeReviewMainImages.includes(img));
+    }
+    if (homePageData.removeReviewImages &&
+        Array.isArray(homePageData.removeReviewImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeReviewImages);
+        reviewImages = reviewImages.filter((img) => !homePageData.removeReviewImages.includes(img));
+    }
+    if (homePageData.removeHotMainImages &&
+        Array.isArray(homePageData.removeHotMainImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHotMainImages);
+        hotMainImages = hotMainImages.filter((img) => !homePageData.removeHotMainImages.includes(img));
+    }
+    if (homePageData.removeHotDealImages &&
+        Array.isArray(homePageData.removeHotDealImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHotDealImages);
+        hotDealImages = hotDealImages.filter((img) => !homePageData.removeHotDealImages.includes(img));
+    }
+    if (homePageData.removeHeroImages &&
+        Array.isArray(homePageData.removeHeroImages)) {
+        yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHeroImages);
+        heroImages = heroImages.filter((img) => !homePageData.removeHeroImages.includes(img));
+    }
     if (homePageData.removeSliderImages &&
         Array.isArray(homePageData.removeSliderImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeSliderImages);
@@ -203,42 +241,53 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
         if (files.sliderImages) {
             const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
             sliderImages = [...sliderImages, ...imageUrl.sliderImages];
-            homePageData.sliderImages = sliderImages;
         }
         if (files.heroImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.heroImages = imageUrl.heroImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            heroImages = [...heroImages, ...imageUrl.heroImages];
         }
         if (files.hotDealImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.hotDealImages = imageUrl.hotDealImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            hotDealImages = [...hotDealImages, ...imageUrl.hotDealImages];
         }
         if (files.hotMainImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.hotMainImages = imageUrl.hotMainImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            hotMainImages = [...hotMainImages, ...imageUrl.hotMainImages];
         }
         if (files.reviewImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.reviewImages = imageUrl.reviewImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            reviewImages = [...reviewImages, ...imageUrl.reviewImages];
         }
         if (files.reviewMainImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.reviewMainImages = imageUrl.reviewMainImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            reviewMainImages = [...reviewMainImages, ...imageUrl.reviewMainImages];
         }
         if (files.footerImages) {
-            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
-            homePageData.footerImages = imageUrl.footerImages;
+            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            footerImages = [...footerImages, ...imageUrl.footerImages];
         }
     }
+    let hours = existingImage.hours;
+    let minutes = existingImage.minutes;
     if (homePageData.hours !== undefined)
-        homePageData.hours = Number(homePageData.hours);
+        hours = new library_1.Decimal(homePageData.hours);
     if (homePageData.minutes !== undefined)
-        homePageData.minutes = Number(homePageData.minutes);
+        minutes = new library_1.Decimal(homePageData.minutes);
     const result = yield prisma_1.default.homePageImages.update({
         where: {
             id: "home_page_single_entry",
         },
-        data: homePageData,
+        data: {
+            sliderImages: sliderImages,
+            heroImages: heroImages,
+            hotDealImages: hotDealImages,
+            hotMainImages: hotMainImages,
+            reviewImages: reviewImages,
+            reviewMainImages: reviewMainImages,
+            footerImages: footerImages,
+            hours: hours,
+            minutes: minutes,
+        },
     });
     return result;
 });
