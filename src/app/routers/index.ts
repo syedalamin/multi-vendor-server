@@ -13,6 +13,7 @@ import { DistrictRoutes } from "../modules/District/district.routes";
 import { CityRoutes } from "../modules/City/city.routes";
 import { ReviewRoutes } from "../modules/Review/review.routes";
 import { InvoiceRoutes } from "../modules/Invoice/invoice.routes";
+ 
 
 const router = express.Router();
 
@@ -73,6 +74,7 @@ const moduleRouters = [
     path: "/invoice",
     route: InvoiceRoutes,
   },
+ 
 ];
 
 moduleRouters.forEach((route) => router.use(route.path, route.route));

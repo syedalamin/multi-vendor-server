@@ -21,65 +21,75 @@ router.get(
 
 router.get("/image", VendorMetaControllers.getHomePageImages);
 
-
-
 router.patch(
-  "/slider-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "sliderImages", maxCount: 5 }]),
+  "/images",
+  auth(UserRole.ADMIN),
+  upload.fields([
+    { name: "sliderImages", maxCount: 5 },
+    { name: "heroImages", maxCount: 5 },
+    { name: "hotDealImages", maxCount: 5 },
+    { name: "hotMainImages", maxCount: 5 },
+    { name: "reviewImages", maxCount: 5 },
+    { name: "reviewMainImages", maxCount: 5 },
+    { name: "footerImages", maxCount: 5 },
+  ]),
   formDataParser,
-
-  VendorMetaControllers.sliderImagesUpdate
+  VendorMetaControllers.createHomePageImages
 );
-router.patch(
-  "/hero-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "heroImages", maxCount: 5 }]),
-  formDataParser,
+// router.patch(
+//   "/slider-images",
+//   // auth(UserRole.ADMIN),
+//   upload.any(),
+//   formDataParser,
+//   VendorMetaControllers.sliderImagesUpdate
+// );
+// router.patch(
+//   "/hero-images",
+//   // auth(UserRole.ADMIN),
+//   upload.fields([{ name: "heroImages", maxCount: 5 }]),
+//   formDataParser,
 
-  VendorMetaControllers.heroImagesUpdate
-);
-router.patch(
-  "/hot-deal-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "hotDealImages", maxCount: 5 }]),
-  formDataParser,
+//   VendorMetaControllers.heroImagesUpdate
+// );
+// router.patch(
+//   "/hot-deal-images",
+//   // auth(UserRole.ADMIN),
+//   upload.fields([{ name: "hotDealImages", maxCount: 5 }]),
+//   formDataParser,
 
-  VendorMetaControllers.hotDealImagesUpdate
-);
-router.patch(
-  "/hot-main-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "hotMainImages", maxCount: 5 }]),
-  formDataParser,
+//   VendorMetaControllers.hotDealImagesUpdate
+// );
+// router.patch(
+//   "/hot-main-images",
+//   // auth(UserRole.ADMIN),
+//   upload.fields([{ name: "hotMainImages", maxCount: 5 }]),
+//   formDataParser,
 
-  VendorMetaControllers.hotMainImagesUpdate
-);
-router.patch(
-  "/review-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "reviewImages", maxCount: 5 }]),
-  formDataParser,
+//   VendorMetaControllers.hotMainImagesUpdate
+// );
+// router.patch(
+//   "/review-images",
+//   // auth(UserRole.ADMIN),
+//   upload.fields([{ name: "reviewImages", maxCount: 5 }]),
+//   formDataParser,
 
-  VendorMetaControllers.reviewImagesUpdate
-);
-router.patch(
-  "/review-main-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "reviewMainImages", maxCount: 5 }]),
-  formDataParser,
+//   VendorMetaControllers.reviewImagesUpdate
+// );
+// router.patch(
+//   "/review-main-images",
+//   // auth(UserRole.ADMIN),
+//   upload.fields([{ name: "reviewMainImages", maxCount: 5 }]),
+//   formDataParser,
 
-  VendorMetaControllers.reviewMainImagesUpdate
-);
-router.patch(
-  "/footer-images",
-  // auth(UserRole.ADMIN),
-  upload.fields([{ name: "footerImages", maxCount: 5 }]),
-  formDataParser,
+//   VendorMetaControllers.reviewMainImagesUpdate
+// );
+// router.patch(
+//   "/footer-images",
+//   // auth(UserRole.ADMIN),
+//   upload.fields([{ name: "footerImages", maxCount: 5 }]),
+//   formDataParser,
 
-  VendorMetaControllers.footerImagesUpdate
-);
+//   VendorMetaControllers.footerImagesUpdate
+// );
 
 export const VendorMetaRoutes = router;
-
- 

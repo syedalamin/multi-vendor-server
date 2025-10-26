@@ -17,17 +17,15 @@ app.use((0, cors_1.default)({
         "http://localhost:3000",
         "http://192.168.0.102:3000",
     ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
 }));
-app.options(/.*/, (0, cors_1.default)());
-app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
+app.use(express_1.default.json({ limit: "10mb" }));
+app.use(express_1.default.urlencoded({ extended: true, limit: "10mb" }));
 //! routers use
 app.use("/api/v1", routers_1.Routers);
 app.use("/uploads", express_1.default.static("uploads"));
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });

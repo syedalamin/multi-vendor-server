@@ -34,14 +34,6 @@ const getAllAdminMetaDataFromDB = (0, catchAsync_1.default)((req, res) => __awai
         data: result,
     });
 }));
-const createHomePageImages = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield meta_services_1.VendorMetaServices.createHomePageImages(req);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        message: "Image are created successfully",
-        data: result,
-    });
-}));
 const getHomePageImages = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield meta_services_1.VendorMetaServices.getHomePageImages();
     (0, sendResponse_1.default)(res, {
@@ -50,9 +42,73 @@ const getHomePageImages = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const createHomePageImages = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield meta_services_1.VendorMetaServices.createHomePageImages(req);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: "Images are Updated successfully",
+        data: result,
+    });
+}));
+// const sliderImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.sliderImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Slider Images are Updated successfully",
+//     data: result,
+//   });
+// });
+// const heroImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.heroImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Hero Images are Updated successfully",
+//     data: result,
+//   });
+// });
+// const hotDealImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.hotDealImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Hot Deal Images are Updated successfully",
+//     data: result,
+//   });
+// });
+// const hotMainImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.hotMainImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Hot Main Images are Updated successfully",
+//     data: result,
+//   });
+// });
+// const reviewImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.reviewImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Review Images are Updated successfully",
+//     data: result,
+//   });
+// });
+// const reviewMainImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.reviewMainImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Review Main Images are Updated successfully",
+//     data: result,
+//   });
+// });
+// const footerImagesUpdate = catchAsync(async (req, res) => {
+//   const result = await VendorMetaServices.footerImagesUpdate(req);
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     message: "Footer Images are Updated successfully",
+//     data: result,
+//   });
+// });
 exports.VendorMetaControllers = {
     getMyVendorMetaDataFromDB,
     getAllAdminMetaDataFromDB,
-    createHomePageImages,
     getHomePageImages,
+    createHomePageImages,
 };

@@ -195,75 +195,68 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
     let reviewImages = existingImage.reviewImages || [];
     let reviewMainImages = existingImage.reviewMainImages || [];
     let footerImages = existingImage.footerImages || [];
-    // removeSliderImages
-    // removeHeroImages
-    // removeHotDealImages
-    // removeHotMainImages
-    // removeReviewImages
-    // removeReviewMainImages
-    // removeFooterImages
     if (homePageData.removeFooterImages &&
         Array.isArray(homePageData.removeFooterImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeFooterImages);
         footerImages = footerImages.filter((img) => !homePageData.removeFooterImages.includes(img));
     }
-    if (homePageData.removeReviewMainImages &&
+    else if (homePageData.removeReviewMainImages &&
         Array.isArray(homePageData.removeReviewMainImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeReviewMainImages);
         reviewMainImages = reviewMainImages.filter((img) => !homePageData.removeReviewMainImages.includes(img));
     }
-    if (homePageData.removeReviewImages &&
+    else if (homePageData.removeReviewImages &&
         Array.isArray(homePageData.removeReviewImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeReviewImages);
         reviewImages = reviewImages.filter((img) => !homePageData.removeReviewImages.includes(img));
     }
-    if (homePageData.removeHotMainImages &&
+    else if (homePageData.removeHotMainImages &&
         Array.isArray(homePageData.removeHotMainImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHotMainImages);
         hotMainImages = hotMainImages.filter((img) => !homePageData.removeHotMainImages.includes(img));
     }
-    if (homePageData.removeHotDealImages &&
+    else if (homePageData.removeHotDealImages &&
         Array.isArray(homePageData.removeHotDealImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHotDealImages);
         hotDealImages = hotDealImages.filter((img) => !homePageData.removeHotDealImages.includes(img));
     }
-    if (homePageData.removeHeroImages &&
+    else if (homePageData.removeHeroImages &&
         Array.isArray(homePageData.removeHeroImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHeroImages);
         heroImages = heroImages.filter((img) => !homePageData.removeHeroImages.includes(img));
     }
-    if (homePageData.removeSliderImages &&
+    else if (homePageData.removeSliderImages &&
         Array.isArray(homePageData.removeSliderImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeSliderImages);
         sliderImages = sliderImages.filter((img) => !homePageData.removeSliderImages.includes(img));
     }
     if (req.files) {
         if (files.sliderImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             sliderImages = [...sliderImages, ...imageUrl.sliderImages];
         }
-        if (files.heroImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+        else if (files.heroImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             heroImages = [...heroImages, ...imageUrl.heroImages];
         }
-        if (files.hotDealImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+        else if (files.hotDealImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             hotDealImages = [...hotDealImages, ...imageUrl.hotDealImages];
         }
-        if (files.hotMainImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+        else if (files.hotMainImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             hotMainImages = [...hotMainImages, ...imageUrl.hotMainImages];
         }
-        if (files.reviewImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+        else if (files.reviewImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             reviewImages = [...reviewImages, ...imageUrl.reviewImages];
         }
-        if (files.reviewMainImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+        else if (files.reviewMainImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             reviewMainImages = [...reviewMainImages, ...imageUrl.reviewMainImages];
         }
-        if (files.footerImages) {
-            const imageUrl = yield (0, sendShopImageToCPanel_1.default)(req);
+        else if (files.footerImages) {
+            const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             footerImages = [...footerImages, ...imageUrl.footerImages];
         }
     }
@@ -299,9 +292,251 @@ const getHomePageImages = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+// const sliderImagesUpdate = async (req: Request) => {
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let sliderImages = existingImage.sliderImages || [];
+//   if (
+//     homePageData.removeSliderImages &&
+//     Array.isArray(homePageData.removeSliderImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeSliderImages);
+//     sliderImages = sliderImages.filter(
+//       (img) => !homePageData.removeSliderImages.includes(img)
+//     );
+//   }
+//   if (req.files && Array.isArray(req.files)) {
+//     const imageUrl = await sendImagesToCPanel(req);
+//     sliderImages = [...sliderImages, ...imageUrl];
+//   }
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       sliderImages: sliderImages,
+//     },
+//   });
+//   return result;
+// };
+// const heroImagesUpdate = async (req: Request) => {
+//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let heroImages = existingImage.heroImages || [];
+//   if (
+//     homePageData.removeHeroImages &&
+//     Array.isArray(homePageData.removeHeroImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeHeroImages);
+//     heroImages = heroImages.filter(
+//       (img) => !homePageData.removeHeroImages.includes(img)
+//     );
+//   }
+//   if (req.files) {
+//     if (files.heroImages) {
+//       const imageUrl = sendShopImageToCPanel(req);
+//       heroImages = [...heroImages, ...imageUrl.heroImages];
+//     }
+//   }
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       heroImages: heroImages,
+//     },
+//   });
+//   return result;
+// };
+// const hotDealImagesUpdate = async (req: Request) => {
+//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let hotDealImages = existingImage.hotDealImages || [];
+//   if (
+//     homePageData.removeHotDealImages &&
+//     Array.isArray(homePageData.removeHotDealImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeHotDealImages);
+//     hotDealImages = hotDealImages.filter(
+//       (img) => !homePageData.removeHotDealImages.includes(img)
+//     );
+//   }
+//   if (req.files) {
+//     if (files.hotDealImages) {
+//       const imageUrl = sendShopImageToCPanel(req);
+//       hotDealImages = [...hotDealImages, ...imageUrl.hotDealImages];
+//     }
+//   }
+//   let hours = existingImage.hours;
+//   let minutes = existingImage.minutes;
+//   if (homePageData.hours !== undefined) hours = new Decimal(homePageData.hours);
+//   if (homePageData.minutes !== undefined)
+//     minutes = new Decimal(homePageData.minutes);
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       hotDealImages: hotDealImages,
+//       hours: hours,
+//       minutes: minutes,
+//     },
+//   });
+//   return result;
+// };
+// const hotMainImagesUpdate = async (req: Request) => {
+//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let hotMainImages = existingImage.hotMainImages || [];
+//   if (
+//     homePageData.removeHotMainImages &&
+//     Array.isArray(homePageData.removeHotMainImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeHotMainImages);
+//     hotMainImages = hotMainImages.filter(
+//       (img) => !homePageData.removeHotMainImages.includes(img)
+//     );
+//   }
+//   if (req.files) {
+//     if (files.hotMainImages) {
+//       const imageUrl = sendShopImageToCPanel(req);
+//       hotMainImages = [...hotMainImages, ...imageUrl.hotMainImages];
+//     }
+//   }
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       hotMainImages: hotMainImages,
+//     },
+//   });
+//   return result;
+// };
+// const reviewImagesUpdate = async (req: Request) => {
+//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let reviewImages = existingImage.reviewImages || [];
+//   if (
+//     homePageData.removeReviewImages &&
+//     Array.isArray(homePageData.removeReviewImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeReviewImages);
+//     reviewImages = reviewImages.filter(
+//       (img) => !homePageData.removeReviewImages.includes(img)
+//     );
+//   }
+//   if (req.files) {
+//     if (files.reviewImages) {
+//       const imageUrl = sendShopImageToCPanel(req);
+//       reviewImages = [...reviewImages, ...imageUrl.reviewImages];
+//     }
+//   }
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       reviewImages: reviewImages,
+//     },
+//   });
+//   return result;
+// };
+// const reviewMainImagesUpdate = async (req: Request) => {
+//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let reviewMainImages = existingImage.reviewMainImages || [];
+//   if (
+//     homePageData.removeReviewMainImages &&
+//     Array.isArray(homePageData.removeReviewMainImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeReviewMainImages);
+//     reviewMainImages = reviewMainImages.filter(
+//       (img) => !homePageData.removeReviewMainImages.includes(img)
+//     );
+//   }
+//   if (req.files) {
+//     if (files.reviewMainImages) {
+//       const imageUrl = sendShopImageToCPanel(req);
+//       reviewMainImages = [...reviewMainImages, ...imageUrl.reviewMainImages];
+//     }
+//   }
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       reviewMainImages: reviewMainImages,
+//     },
+//   });
+//   return result;
+// };
+// const footerImagesUpdate = async (req: Request) => {
+//   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+//   let homePageData = req.body;
+//   const existingImage = await prisma.homePageImages.findUniqueOrThrow({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//   });
+//   let footerImages = existingImage.footerImages || [];
+//   if (
+//     homePageData.removeFooterImages &&
+//     Array.isArray(homePageData.removeFooterImages)
+//   ) {
+//     await deleteImagesFromCPanel(homePageData.removeFooterImages);
+//     footerImages = footerImages.filter(
+//       (img) => !homePageData.removeFooterImages.includes(img)
+//     );
+//   }
+//   if (req.files) {
+//     if (files.footerImages) {
+//       const imageUrl = sendShopImageToCPanel(req);
+//       footerImages = [...footerImages, ...imageUrl.footerImages];
+//     }
+//   }
+//   const result = await prisma.homePageImages.update({
+//     where: {
+//       id: "home_page_single_entry",
+//     },
+//     data: {
+//       footerImages: footerImages,
+//     },
+//   });
+//   return result;
+// };
 exports.VendorMetaServices = {
     getMyVendorMetaDataFromDB,
     getAllAdminMetaDataFromDB,
-    createHomePageImages,
     getHomePageImages,
+    createHomePageImages,
 };
