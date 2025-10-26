@@ -280,6 +280,8 @@ model HomePageImages {
   @@map("homePageImages")
 }
 
+
+
 enum OrderPaymentStatus {
   PENDING
   PAID
@@ -330,3 +332,70 @@ enum CartStatus {
   CHECKED_OUT
   SAVED_FOR_LATER
 }
+
+
+
+
+
+
+
+
+
+// //  sliderImages     String[]
+// //   heroImages       String[]
+// //   hotDealImages    String[]
+// //   hotMainImages    String[]
+// //   reviewImages     String[]
+// //   reviewMainImages String[]
+// //   footerImages     String[]
+
+// model HomePageImages {
+//   id           String   @id @default("home_page_single_entry")
+//   sliderImages String[]
+
+//   @@map("homePageImages")
+// }
+
+// model HomePageHeroImages {
+//   id         String   @id @default("heroImage")
+//   heroImages String[]
+
+//   @@map("heroImages")
+// }
+
+// model HomePageHotDealImages {
+//   id            String  @id @default("hotDealImage")
+//   hotDealImages String?
+//   minutes       Decimal @default(0)
+//   hours         Decimal @default(0)
+
+//   @@map("hotDealImages")
+// }
+
+// model HomePageHotMainImages {
+//   id            String  @id @default("hotMainImage")
+//   hotMainImages String?
+
+//   @@map("hotMainImages")
+// }
+
+// model HomePageReviewImages {
+//   id           String  @id @default("reviewImage")
+//   reviewImages String?
+
+//   @@map("reviewImages")
+// }
+
+// model HomePageReviewMainImages {
+//   id               String  @id @default("reviewMainImage")
+//   reviewMainImages String?
+
+//   @@map("reviewMainImages")
+// }
+
+// model HomePageFooterImages {
+//   id           String  @id @default("footerImage")
+//   reviewImages String?
+
+//   @@map("footerImages")
+// }
