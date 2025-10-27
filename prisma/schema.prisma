@@ -276,11 +276,14 @@ model HomePageImages {
   footerImages     String[]
   minutes          Decimal  @default(0)
   hours            Decimal  @default(0)
+  facebook         String   @default("")
+  instagram        String   @default("")
+  twitter          String   @default("")
+  youtube          String   @default("")
+  phonNumber       String?
 
   @@map("homePageImages")
 }
-
-
 
 enum OrderPaymentStatus {
   PENDING
@@ -332,15 +335,6 @@ enum CartStatus {
   CHECKED_OUT
   SAVED_FOR_LATER
 }
-
-
-
-
-
-
-
-
- 
 
 // model HomePage {
 //   id           String   @id @default("home_page")

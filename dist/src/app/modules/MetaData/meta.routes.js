@@ -14,9 +14,7 @@ const router = express_1.default.Router();
 router.get("/vendor", (0, auth_1.default)(client_1.UserRole.VENDOR), meta_controllers_1.VendorMetaControllers.getMyVendorMetaDataFromDB);
 router.get("/admin", (0, auth_1.default)(client_1.UserRole.ADMIN), meta_controllers_1.VendorMetaControllers.getAllAdminMetaDataFromDB);
 router.get("/image", meta_controllers_1.VendorMetaControllers.getHomePageImages);
-router.patch("/images", 
-// auth(UserRole.ADMIN),
-fileUploader_1.upload.fields([
+router.patch("/images", (0, auth_1.default)(client_1.UserRole.ADMIN), fileUploader_1.upload.fields([
     { name: "sliderImages", maxCount: 5 },
     { name: "heroImages", maxCount: 5 },
     { name: "hotDealImages", maxCount: 5 },

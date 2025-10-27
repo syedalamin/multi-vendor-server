@@ -200,32 +200,32 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeFooterImages);
         footerImages = footerImages.filter((img) => !homePageData.removeFooterImages.includes(img));
     }
-    else if (homePageData.removeReviewMainImages &&
+    if (homePageData.removeReviewMainImages &&
         Array.isArray(homePageData.removeReviewMainImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeReviewMainImages);
         reviewMainImages = reviewMainImages.filter((img) => !homePageData.removeReviewMainImages.includes(img));
     }
-    else if (homePageData.removeReviewImages &&
+    if (homePageData.removeReviewImages &&
         Array.isArray(homePageData.removeReviewImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeReviewImages);
         reviewImages = reviewImages.filter((img) => !homePageData.removeReviewImages.includes(img));
     }
-    else if (homePageData.removeHotMainImages &&
+    if (homePageData.removeHotMainImages &&
         Array.isArray(homePageData.removeHotMainImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHotMainImages);
         hotMainImages = hotMainImages.filter((img) => !homePageData.removeHotMainImages.includes(img));
     }
-    else if (homePageData.removeHotDealImages &&
+    if (homePageData.removeHotDealImages &&
         Array.isArray(homePageData.removeHotDealImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHotDealImages);
         hotDealImages = hotDealImages.filter((img) => !homePageData.removeHotDealImages.includes(img));
     }
-    else if (homePageData.removeHeroImages &&
+    if (homePageData.removeHeroImages &&
         Array.isArray(homePageData.removeHeroImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeHeroImages);
         heroImages = heroImages.filter((img) => !homePageData.removeHeroImages.includes(img));
     }
-    else if (homePageData.removeSliderImages &&
+    if (homePageData.removeSliderImages &&
         Array.isArray(homePageData.removeSliderImages)) {
         yield (0, deleteImagesFromCPanel_1.default)(homePageData.removeSliderImages);
         sliderImages = sliderImages.filter((img) => !homePageData.removeSliderImages.includes(img));
@@ -235,27 +235,27 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             sliderImages = [...sliderImages, ...imageUrl.sliderImages];
         }
-        else if (files.heroImages) {
+        if (files.heroImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             heroImages = [...heroImages, ...imageUrl.heroImages];
         }
-        else if (files.hotDealImages) {
+        if (files.hotDealImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             hotDealImages = [...hotDealImages, ...imageUrl.hotDealImages];
         }
-        else if (files.hotMainImages) {
+        if (files.hotMainImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             hotMainImages = [...hotMainImages, ...imageUrl.hotMainImages];
         }
-        else if (files.reviewImages) {
+        if (files.reviewImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             reviewImages = [...reviewImages, ...imageUrl.reviewImages];
         }
-        else if (files.reviewMainImages) {
+        if (files.reviewMainImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             reviewMainImages = [...reviewMainImages, ...imageUrl.reviewMainImages];
         }
-        else if (files.footerImages) {
+        if (files.footerImages) {
             const imageUrl = (0, sendShopImageToCPanel_1.default)(req);
             footerImages = [...footerImages, ...imageUrl.footerImages];
         }
@@ -266,6 +266,11 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
         hours = new library_1.Decimal(homePageData.hours);
     if (homePageData.minutes !== undefined)
         minutes = new library_1.Decimal(homePageData.minutes);
+    let facebook = homePageData.facebook;
+    let instagram = homePageData.instagram;
+    let twitter = homePageData.twitter;
+    let youtube = homePageData.youtube;
+    let phonNumber = homePageData.phonNumber;
     const result = yield prisma_1.default.homePageImages.update({
         where: {
             id: "home_page_single_entry",
@@ -280,6 +285,11 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
             footerImages: footerImages,
             hours: hours,
             minutes: minutes,
+            facebook,
+            instagram,
+            twitter,
+            youtube,
+            phonNumber,
         },
     });
     return result;

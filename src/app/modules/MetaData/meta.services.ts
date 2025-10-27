@@ -232,7 +232,8 @@ const createHomePageImages = async (req: Request) => {
     footerImages = footerImages.filter(
       (img) => !homePageData.removeFooterImages.includes(img)
     );
-  } else if (
+  }
+  if (
     homePageData.removeReviewMainImages &&
     Array.isArray(homePageData.removeReviewMainImages)
   ) {
@@ -240,7 +241,8 @@ const createHomePageImages = async (req: Request) => {
     reviewMainImages = reviewMainImages.filter(
       (img) => !homePageData.removeReviewMainImages.includes(img)
     );
-  } else if (
+  }
+  if (
     homePageData.removeReviewImages &&
     Array.isArray(homePageData.removeReviewImages)
   ) {
@@ -248,7 +250,8 @@ const createHomePageImages = async (req: Request) => {
     reviewImages = reviewImages.filter(
       (img) => !homePageData.removeReviewImages.includes(img)
     );
-  } else if (
+  }
+  if (
     homePageData.removeHotMainImages &&
     Array.isArray(homePageData.removeHotMainImages)
   ) {
@@ -256,7 +259,8 @@ const createHomePageImages = async (req: Request) => {
     hotMainImages = hotMainImages.filter(
       (img) => !homePageData.removeHotMainImages.includes(img)
     );
-  } else if (
+  }
+  if (
     homePageData.removeHotDealImages &&
     Array.isArray(homePageData.removeHotDealImages)
   ) {
@@ -264,7 +268,8 @@ const createHomePageImages = async (req: Request) => {
     hotDealImages = hotDealImages.filter(
       (img) => !homePageData.removeHotDealImages.includes(img)
     );
-  } else if (
+  }
+  if (
     homePageData.removeHeroImages &&
     Array.isArray(homePageData.removeHeroImages)
   ) {
@@ -272,7 +277,8 @@ const createHomePageImages = async (req: Request) => {
     heroImages = heroImages.filter(
       (img) => !homePageData.removeHeroImages.includes(img)
     );
-  } else if (
+  }
+  if (
     homePageData.removeSliderImages &&
     Array.isArray(homePageData.removeSliderImages)
   ) {
@@ -286,22 +292,28 @@ const createHomePageImages = async (req: Request) => {
     if (files.sliderImages) {
       const imageUrl = sendShopImageToCPanel(req);
       sliderImages = [...sliderImages, ...imageUrl.sliderImages];
-    } else if (files.heroImages) {
+    }
+    if (files.heroImages) {
       const imageUrl = sendShopImageToCPanel(req);
       heroImages = [...heroImages, ...imageUrl.heroImages];
-    } else if (files.hotDealImages) {
+    }
+    if (files.hotDealImages) {
       const imageUrl = sendShopImageToCPanel(req);
       hotDealImages = [...hotDealImages, ...imageUrl.hotDealImages];
-    } else if (files.hotMainImages) {
+    }
+    if (files.hotMainImages) {
       const imageUrl = sendShopImageToCPanel(req);
       hotMainImages = [...hotMainImages, ...imageUrl.hotMainImages];
-    } else if (files.reviewImages) {
+    }
+    if (files.reviewImages) {
       const imageUrl = sendShopImageToCPanel(req);
       reviewImages = [...reviewImages, ...imageUrl.reviewImages];
-    } else if (files.reviewMainImages) {
+    }
+    if (files.reviewMainImages) {
       const imageUrl = sendShopImageToCPanel(req);
       reviewMainImages = [...reviewMainImages, ...imageUrl.reviewMainImages];
-    } else if (files.footerImages) {
+    }
+    if (files.footerImages) {
       const imageUrl = sendShopImageToCPanel(req);
       footerImages = [...footerImages, ...imageUrl.footerImages];
     }
@@ -309,9 +321,16 @@ const createHomePageImages = async (req: Request) => {
 
   let hours = existingImage.hours;
   let minutes = existingImage.minutes;
+
   if (homePageData.hours !== undefined) hours = new Decimal(homePageData.hours);
   if (homePageData.minutes !== undefined)
     minutes = new Decimal(homePageData.minutes);
+
+  let facebook = homePageData.facebook;
+  let instagram = homePageData.instagram;
+  let twitter = homePageData.twitter;
+  let youtube = homePageData.youtube;
+  let phonNumber = homePageData.phonNumber;
 
   const result = await prisma.homePageImages.update({
     where: {
@@ -327,6 +346,11 @@ const createHomePageImages = async (req: Request) => {
       footerImages: footerImages,
       hours: hours,
       minutes: minutes,
+      facebook,
+      instagram,
+      twitter,
+      youtube,
+      phonNumber,
     },
   });
 

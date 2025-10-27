@@ -58,7 +58,7 @@ export async function startCountdownCron() {
     return;
   }
 
-  countdownTask = cron.schedule("*/60 * * * * *", async () => {
+  countdownTask = cron.schedule("*/1 * * * *", async () => {
     await decreaseCountdown();
   });
 

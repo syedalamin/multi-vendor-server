@@ -69,7 +69,7 @@ function startCountdownCron() {
         if (total.lte(0)) {
             return;
         }
-        countdownTask = node_cron_1.default.schedule("*/60 * * * * *", () => __awaiter(this, void 0, void 0, function* () {
+        countdownTask = node_cron_1.default.schedule("*/1 * * * *", () => __awaiter(this, void 0, void 0, function* () {
             yield decreaseCountdown();
         }));
         countdownTask.start();

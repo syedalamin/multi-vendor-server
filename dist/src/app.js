@@ -18,7 +18,7 @@ app.use((0, cors_1.default)({
         "http://192.168.0.102:3000",
     ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json({ limit: "10mb" }));
