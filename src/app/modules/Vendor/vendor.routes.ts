@@ -9,8 +9,9 @@ import { VendorValidation } from "./vendor.validation";
 
 const router = express.Router();
 
-router.get("/", auth(UserRole.ADMIN), VendorControllers.getAllDataFromDB);
-router.get("/:id", auth(UserRole.ADMIN), VendorControllers.getByIdFromDB);
+router.get("/",   VendorControllers.getAllDataFromDB);
+router.get("/:id",  VendorControllers.getByIdFromDB);
+router.get("/slug/:slug",  VendorControllers.getBySlugFromDB);
 router.patch(
   "/:id",
   auth(UserRole.ADMIN, UserRole.VENDOR),

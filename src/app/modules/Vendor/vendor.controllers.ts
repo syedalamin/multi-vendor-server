@@ -19,6 +19,16 @@ const getAllDataFromDB = catchAsync(async (req, res) => {
     data: result.data,
   });
 });
+const getBySlugFromDB = catchAsync(async (req, res) => {
+  const { slug } = req.params;
+  const result = await VendorServices.getBySlugFromDB(slug);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    message: "Vendor is retrieved successfully",
+    data: result,
+  });
+});
 const getByIdFromDB = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await VendorServices.getByIdFromDB(id);
@@ -77,5 +87,5 @@ export const VendorControllers = {
   updateByIdIntoDB,
   deleteByIdFromDB,
   verifyUpdateByIdIntoDB,
-  softDeleteByIdFromDB,
+  softDeleteByIdFromDB,getBySlugFromDB
 };

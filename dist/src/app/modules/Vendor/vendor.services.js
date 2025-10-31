@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VendorServices = void 0;
+const client_1 = require("@prisma/client");
 const pagination_1 = require("../../../utils/pagination/pagination");
 const buildSearchAndFilterCondition_1 = require("../../../utils/search/buildSearchAndFilterCondition");
 const buildSortCondition_1 = require("../../../utils/search/buildSortCondition");
@@ -56,6 +57,33 @@ const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
         where: {
             id: id,
             isBlocked: false,
+        },
+    });
+    return result;
+});
+const getBySlugFromDB = (slug) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.vendor.findFirstOrThrow({
+        where: {
+            shopSlug: slug,
+            isBlocked: false,
+            isVerified: true,
+        },
+        include: {
+            user: {
+                select: {
+                    product: {
+                        where: {
+                            status: {
+                                in: [
+                                    client_1.ProductStatus.ACTIVE,
+                                    client_1.ProductStatus.DISCONTINUED,
+                                    client_1.ProductStatus.OUT_OF_STOCK,
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
         },
     });
     return result;
@@ -115,9 +143,27 @@ const verifyUpdateByIdIntoDB = (id) => __awaiter(void 0, void 0, void 0, functio
             id,
             isBlocked: false,
         },
+        include: {
+            user: true,
+        },
     });
     if (!isVendorExist) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Vendor is not found");
+    }
+    const isExistsShopProduct = yield prisma_1.default.product.findMany({
+        where: {
+            sellerId: isVendorExist.id,
+        },
+    });
+    if (isExistsShopProduct) {
+        yield prisma_1.default.product.updateMany({
+            where: {
+                sellerId: isVendorExist.user.id,
+            },
+            data: {
+                status: client_1.ProductStatus.ACTIVE,
+            },
+        });
     }
     const result = yield prisma_1.default.vendor.update({
         where: {
@@ -156,18 +202,32 @@ const softDeleteByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function*
         where: {
             id,
         },
+        include: {
+            user: true,
+        },
     });
     if (!isVendorExist) {
         throw new apiError_1.default(http_status_1.default.NOT_FOUND, "Vendor is not found");
     }
-    const result = yield prisma_1.default.vendor.update({
-        where: {
-            id: isVendorExist.id,
-        },
-        data: {
-            isVerified: false,
-        },
-    });
+    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
+        yield transactionClient.product.updateMany({
+            where: {
+                sellerId: isVendorExist.user.id,
+            },
+            data: {
+                status: client_1.ProductStatus.INACTIVE,
+            },
+        });
+        const result = yield transactionClient.vendor.update({
+            where: {
+                id: isVendorExist.id,
+            },
+            data: {
+                isVerified: false,
+            },
+        });
+        return result;
+    }));
     return result;
 });
 exports.VendorServices = {
@@ -177,4 +237,5 @@ exports.VendorServices = {
     deleteByIdFromDB,
     verifyUpdateByIdIntoDB,
     softDeleteByIdFromDB,
+    getBySlugFromDB,
 };

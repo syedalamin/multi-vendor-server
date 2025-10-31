@@ -31,6 +31,15 @@ const getAllDataFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 
         data: result.data,
     });
 }));
+const getBySlugFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { slug } = req.params;
+    const result = yield vendor_services_1.VendorServices.getBySlugFromDB(slug);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: "Vendor is retrieved successfully",
+        data: result,
+    });
+}));
 const getByIdFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield vendor_services_1.VendorServices.getByIdFromDB(id);
@@ -82,5 +91,5 @@ exports.VendorControllers = {
     updateByIdIntoDB,
     deleteByIdFromDB,
     verifyUpdateByIdIntoDB,
-    softDeleteByIdFromDB,
+    softDeleteByIdFromDB, getBySlugFromDB
 };

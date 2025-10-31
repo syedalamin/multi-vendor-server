@@ -281,6 +281,7 @@ model HomePageImages {
   twitter          String   @default("")
   youtube          String   @default("")
   phonNumber       String?
+  headSlider       String   @default("")
 
   @@map("homePageImages")
 }

@@ -1,4 +1,4 @@
-import { UserStatus, Vendor } from "@prisma/client";
+import { ProductStatus, UserStatus, Vendor } from "@prisma/client";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { allowedSortOrder } from "../../../utils/pagination/pagination";
 import { buildSearchAndFilterCondition } from "../../../utils/search/buildSearchAndFilterCondition";
@@ -73,6 +73,35 @@ const getByIdFromDB = async (id: string): Promise<Vendor> => {
 
   return result;
 };
+const getBySlugFromDB = async (slug: string): Promise<Vendor> => {
+  const result = await prisma.vendor.findFirstOrThrow({
+    where: {
+      shopSlug: slug,
+      isBlocked: false,
+      isVerified: true,
+    },
+
+    include: {
+      user: {
+        select: {
+          product: {
+            where: {
+              status: {
+                in: [
+                  ProductStatus.ACTIVE,
+                  ProductStatus.DISCONTINUED,
+                  ProductStatus.OUT_OF_STOCK,
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return result;
+};
 
 const updateByIdIntoDB = async (id: string, req: Request) => {
   const vendorData = req.body;
@@ -131,15 +160,36 @@ const updateByIdIntoDB = async (id: string, req: Request) => {
 
   return result;
 };
+
 const verifyUpdateByIdIntoDB = async (id: string) => {
   const isVendorExist = await prisma.vendor.findFirst({
     where: {
       id,
       isBlocked: false,
     },
+    include: {
+      user: true,
+    },
   });
   if (!isVendorExist) {
     throw new ApiError(status.NOT_FOUND, "Vendor is not found");
+  }
+
+  const isExistsShopProduct = await prisma.product.findMany({
+    where: {
+      sellerId: isVendorExist.id,
+    },
+  });
+
+  if (isExistsShopProduct) {
+    await prisma.product.updateMany({
+      where: {
+        sellerId: isVendorExist.user.id,
+      },
+      data: {
+        status: ProductStatus.ACTIVE,
+      },
+    });
   }
 
   const result = await prisma.vendor.update({
@@ -186,19 +236,34 @@ const softDeleteByIdFromDB = async (id: string) => {
     where: {
       id,
     },
+    include: {
+      user: true,
+    },
   });
   if (!isVendorExist) {
     throw new ApiError(status.NOT_FOUND, "Vendor is not found");
   }
 
-  const result = await prisma.vendor.update({
-    where: {
-      id: isVendorExist.id,
-    },
-    data: {
-      isVerified: false,
-    },
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.product.updateMany({
+      where: {
+        sellerId: isVendorExist.user.id,
+      },
+      data: {
+        status: ProductStatus.INACTIVE,
+      },
+    });
+    const result = await transactionClient.vendor.update({
+      where: {
+        id: isVendorExist.id,
+      },
+      data: {
+        isVerified: false,
+      },
+    });
+    return result;
   });
+
   return result;
 };
 
@@ -209,4 +274,5 @@ export const VendorServices = {
   deleteByIdFromDB,
   verifyUpdateByIdIntoDB,
   softDeleteByIdFromDB,
+  getBySlugFromDB,
 };

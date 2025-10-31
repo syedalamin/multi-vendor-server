@@ -271,6 +271,7 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
     let twitter = homePageData.twitter;
     let youtube = homePageData.youtube;
     let phonNumber = homePageData.phonNumber;
+    let headSlider = homePageData.headSlider;
     const result = yield prisma_1.default.homePageImages.update({
         where: {
             id: "home_page_single_entry",
@@ -290,6 +291,7 @@ const createHomePageImages = (req) => __awaiter(void 0, void 0, void 0, function
             twitter,
             youtube,
             phonNumber,
+            headSlider
         },
     });
     return result;

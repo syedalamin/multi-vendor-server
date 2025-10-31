@@ -331,6 +331,7 @@ const createHomePageImages = async (req: Request) => {
   let twitter = homePageData.twitter;
   let youtube = homePageData.youtube;
   let phonNumber = homePageData.phonNumber;
+  let headSlider = homePageData.headSlider;
 
   const result = await prisma.homePageImages.update({
     where: {
@@ -351,6 +352,7 @@ const createHomePageImages = async (req: Request) => {
       twitter,
       youtube,
       phonNumber,
+      headSlider
     },
   });
 

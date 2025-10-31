@@ -13,8 +13,9 @@ const formDataParser_1 = __importDefault(require("../../../utils/formDataParser"
 const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
 const vendor_validation_1 = require("./vendor.validation");
 const router = express_1.default.Router();
-router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), vendor_controllers_1.VendorControllers.getAllDataFromDB);
-router.get("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), vendor_controllers_1.VendorControllers.getByIdFromDB);
+router.get("/", vendor_controllers_1.VendorControllers.getAllDataFromDB);
+router.get("/:id", vendor_controllers_1.VendorControllers.getByIdFromDB);
+router.get("/slug/:slug", vendor_controllers_1.VendorControllers.getBySlugFromDB);
 router.patch("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), fileUploader_1.upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "banner", maxCount: 1 },
