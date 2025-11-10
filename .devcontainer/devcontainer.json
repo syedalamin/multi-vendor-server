@@ -1,0 +1,23 @@
+{
+  "name": "Trusty Shop Backend Dev", // UI display name
+  "image": "syedalamin/trusty-shop-backend:0.0.1", // use your prebuilt image
+  "workspaceFolder": "/src",
+  "mounts": [
+    "source=shop-logs,target=/src/logs,type=volume",
+    "source=${localWorkspaceFolder},target=/src,type=bind"
+  ],
+  "runArgs": [
+    "-p",
+    "5000:5000",
+    "--name",
+    "shop",
+    "--rm",
+    "--env-file",
+    ".env",
+    "-w",
+    "/src"
+  ],
+  "overrideCommand": false,
+  "remoteUser": "root",
+  "postCreateCommand": "npm install"
+}

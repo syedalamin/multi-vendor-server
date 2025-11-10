@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --poll src/server.ts",
+    "start:dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "migrate": "npx prisma migrate dev",
     "seed": "ts-node-dev --respawn --transpile-only prisma/seed.ts",
     "ins": "npm install",
     "generate": "npx prisma generate",
     "build": "tsc",
+
     "start": "node dist/src/server.js"
   },
   "keywords": [],
@@ -43,6 +45,7 @@
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
     "ts-node-dev": "^2.0.0",
+    "winston": "^3.18.3",
     "zod": "^4.0.14"
   }
 }

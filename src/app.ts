@@ -1,9 +1,9 @@
-import express from "express";
-import cors from "cors";
-import { Routers } from "./app/routers";
-import globalErrorHandler from "./app/middlewares/globalErrorHandler";
-import notFound from "./utils/notFound";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
+import { Routers } from "./app/routers";
+import notFound from "./utils/notFound";
 
 const app = express();
 
@@ -30,7 +30,7 @@ app.use("/api/v1", Routers);
 
 app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Welcome Trusty Shop BD !");
 });
 
 //! not found path

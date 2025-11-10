@@ -4,6 +4,7 @@ import config from "../../config";
 import { ZodError } from "zod";
 import handleZodError from "../../utils/share/errors/handleZodError";
 import { Prisma } from "@prisma/client";
+import logger from "../../utils/share/logger";
 
 const globalErrorHandler = (
   err: ApiError,
@@ -11,7 +12,7 @@ const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  //  console.error("🔥 Global Error:", err);
+ 
   let statusCode = 500;
   let success = false;
   let message = "Something Went Wrong";
@@ -52,6 +53,14 @@ const globalErrorHandler = (
     ];
   }
 
+  logger.error({
+    message,
+    statusCode,
+    stack: err.stack,
+    path: req.originalUrl,
+    method: req.method,
+  });
+
   res.status(statusCode).json({
     success,
     message,
@@ -62,13 +71,3 @@ const globalErrorHandler = (
 };
 
 export default globalErrorHandler;
-
-// res.status(statusCode).json({
-//   success,
-//   message,
-//   err,
-//   error: {
-//     name,
-//     stack,
-//   },
-// });
