@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedDatabase = void 0;
 const client_1 = require("@prisma/client");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma_1 = __importDefault(require("../src/utils/share/prisma"));
@@ -52,7 +53,7 @@ const seedAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
         }));
     }
     catch (err) {
-        console.error("Admin Seed failed:", err);
+        //  throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create admin user");
     }
     finally {
         yield prisma_1.default.$disconnect();
@@ -67,11 +68,13 @@ const createHomePageImages = () => __awaiter(void 0, void 0, void 0, function* (
         });
     }
     catch (err) {
-        console.error("Admin Seed failed:", err);
+        // throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create home page images entry");
     }
     finally {
         yield prisma_1.default.$disconnect();
     }
 });
-createHomePageImages();
-seedAdmin();
+exports.seedDatabase = {
+    seedAdmin,
+    createHomePageImages,
+};

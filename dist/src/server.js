@@ -15,16 +15,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./config"));
 const cronScheduler_1 = require("./utils/cronScheduler");
+const logger_1 = __importDefault(require("./utils/share/logger"));
+const seed_1 = require("../prisma/seed");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const server = app_1.default.listen(config_1.default.port, () => {
-            console.log(`Example app listening on port ${config_1.default.port}`);
+            console.log(`🚀 Example app listening on port ${config_1.default.port}`);
+            logger_1.default.info(`🚀 Server running on port ${config_1.default.port}`);
             (0, cronScheduler_1.startCountdownCron)();
+            seed_1.seedDatabase.createHomePageImages();
+            seed_1.seedDatabase.seedAdmin();
         });
         const exitHandler = () => {
             if (server) {
                 server.close(() => {
                     console.info("Server Closed!");
+                    logger_1.default.info(`Server Closed!`);
                     process.exit(1);
                 });
             }
@@ -34,10 +40,12 @@ function main() {
         };
         process.on("uncaughtException", (err) => {
             console.log(err);
+            logger_1.default.error(err);
             exitHandler();
         });
         process.on("unhandledRejection", (err) => {
             console.log(err);
+            logger_1.default.error(err);
             exitHandler();
         });
     });

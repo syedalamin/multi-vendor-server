@@ -8,9 +8,9 @@ const config_1 = __importDefault(require("../../config"));
 const zod_1 = require("zod");
 const handleZodError_1 = __importDefault(require("../../utils/share/errors/handleZodError"));
 const client_1 = require("@prisma/client");
+const logger_1 = __importDefault(require("../../utils/share/logger"));
 const globalErrorHandler = (err, req, res, next) => {
     var _a, _b;
-    //  console.error("🔥 Global Error:", err);
     let statusCode = 500;
     let success = false;
     let message = "Something Went Wrong";
@@ -53,6 +53,13 @@ const globalErrorHandler = (err, req, res, next) => {
             },
         ];
     }
+    logger_1.default.error({
+        message,
+        statusCode,
+        stack: err.stack,
+        path: req.originalUrl,
+        method: req.method,
+    });
     res.status(statusCode).json({
         success,
         message,
@@ -62,12 +69,3 @@ const globalErrorHandler = (err, req, res, next) => {
     });
 };
 exports.default = globalErrorHandler;
-// res.status(statusCode).json({
-//   success,
-//   message,
-//   err,
-//   error: {
-//     name,
-//     stack,
-//   },
-// });
