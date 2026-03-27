@@ -3,12 +3,15 @@ import app from "./app";
 import config from "./config";
 import { startCountdownCron } from "./utils/cronScheduler";
 import logger from "./utils/share/logger";
+import { seedDatabase } from "../prisma/seed";
 
 async function main() {
   const server: Server = app.listen(config.port, () => {
     console.log(`🚀 Example app listening on port ${config.port}`);
     logger.info(`🚀 Server running on port ${config.port}`);
     startCountdownCron();
+    seedDatabase.createHomePageImages();
+    seedDatabase.seedAdmin();
   });
 
   const exitHandler = () => {

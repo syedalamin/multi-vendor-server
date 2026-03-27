@@ -6,6 +6,7 @@ import status from "http-status";
 
 const seedAdmin = async () => {
   try {
+     
     const isUserExist = await prisma.admin.findFirst({
       where: {
         email: "trustyshoptbd@gmail.com",
@@ -16,7 +17,10 @@ const seedAdmin = async () => {
       throw new ApiError(status.CONFLICT, "User is already exists");
     }
 
-    const hashedPassword: string = await bcrypt.hash("trustyshoptbd@gmail.com", 12);
+    const hashedPassword: string = await bcrypt.hash(
+      "trustyshoptbd@gmail.com",
+      12,
+    );
 
     const userData = {
       email: "trustyshoptbd@gmail.com",
@@ -24,7 +28,7 @@ const seedAdmin = async () => {
       role: UserRole.ADMIN,
     };
 
-     await prisma.$transaction(async (transactionClient) => {
+    await prisma.$transaction(async (transactionClient) => {
       const user = await transactionClient.user.create({
         data: userData,
       });
@@ -42,10 +46,8 @@ const seedAdmin = async () => {
 
       return createdAdminData;
     });
-
- 
   } catch (err) {
-    console.error("Admin Seed failed:", err);
+    //  throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create admin user");
   } finally {
     await prisma.$disconnect();
   }
@@ -59,10 +61,14 @@ const createHomePageImages = async () => {
       },
     });
   } catch (err) {
-    console.error("Admin Seed failed:", err);
+    
+    // throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create home page images entry");
   } finally {
     await prisma.$disconnect();
   }
 };
-createHomePageImages();
-seedAdmin();
+
+export const seedDatabase = {
+  seedAdmin,
+  createHomePageImages,
+};
