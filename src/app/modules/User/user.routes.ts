@@ -14,7 +14,7 @@ router.post(
   upload.single("file"),
   formDataParser,
   validateRequest(UserValidations.adminValidation),
-  UserControllers.createAdmin
+  UserControllers.createAdmin,
 );
 router.post(
   "/create-vendor",
@@ -24,7 +24,7 @@ router.post(
   ]),
   formDataParser,
   validateRequest(UserValidations.vendorValidation),
-  UserControllers.createVendor
+  UserControllers.createVendor,
 );
 router.post(
   "/create-customer",
@@ -32,14 +32,14 @@ router.post(
   upload.single("file"),
   formDataParser,
   validateRequest(UserValidations.customerValidation),
-  UserControllers.createCustomer
+  UserControllers.createCustomer,
 );
 
 router.get("/", auth(UserRole.ADMIN), UserControllers.getAllUserFromDB);
 router.get(
   "/me",
   auth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.VENDOR),
-  UserControllers.getMyProfile
+  UserControllers.getMyProfile,
 );
 router.get("/:id", auth(UserRole.ADMIN), UserControllers.getByIdFromDB);
 router.patch(
@@ -48,19 +48,19 @@ router.patch(
   upload.single("file"),
   formDataParser,
   validateRequest(UserValidations.myProfileValidation),
-  UserControllers.updateMyProfile
+  UserControllers.updateMyProfile,
 );
 
 router.patch(
   "/change-status/:email",
   auth(UserRole.ADMIN),
-  UserControllers.changeUserStatus
+  UserControllers.changeUserStatus,
 );
 router.patch(
   "/update-role/:email",
   auth(UserRole.ADMIN),
   // validateRequest(UserValidations.myProfileValidation),
-  UserControllers.updateUserRole
+  UserControllers.updateUserRole,
 );
 
 export const UserRoutes = router;

@@ -7,6 +7,7 @@ import { adminFilterableFields } from "./admin.constants";
 import { paginationFilterableField } from "../../../utils/pagination/pagination";
 
 const getAllAdmins = catchAsync(async (req, res) => {
+  
   const filters = pick(req.query, adminFilterableFields);
   const options = pick(req.query, paginationFilterableField);
 
