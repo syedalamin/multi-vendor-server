@@ -6,35 +6,39 @@ import logger from "./utils/share/logger";
 import { seedDatabase } from "../prisma/seed";
 
 async function main() {
-  const server: Server = app.listen(config.port, () => {
-    console.log(`🚀 Example app listening on port ${config.port}`);
+  const server: Server = app.listen(Number(config.port), "0.0.0.0", () => {
+    console.log(`🚀 Server listening on port ${config.port}`);
     logger.info(`🚀 Server running on port ${config.port}`);
-    startCountdownCron();
-    seedDatabase.createHomePageImages();
-    seedDatabase.seedAdmin();
+    
+    if (config.NODE_ENV !== "production") {
+      startCountdownCron();
+      seedDatabase.createHomePageImages();
+      seedDatabase.seedAdmin();
+    }
   });
 
-  const exitHandler = () => {
-    if (server) {
-      server.close(() => {
-        console.info("Server Closed!");
-        logger.info(`Server Closed!`);
-        process.exit(1);
-      });
-    } else {
+  const gracefulShutdown = (signal: string) => {
+    logger.info(`Received ${signal}. Starting graceful shutdown...`);
+    server.close(() => {
+      logger.info("HTTP server closed");
+      process.exit(0);
+    });
+    setTimeout(() => {
+      logger.error("Forced shutdown after timeout");
       process.exit(1);
-    }
+    }, 10000);
   };
 
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
   process.on("uncaughtException", (err) => {
-    console.log(err);
-    logger.error(err);
-    exitHandler();
+    logger.error(`Uncaught Exception: ${err.message}`);
+    process.exit(1);
   });
   process.on("unhandledRejection", (err) => {
-    console.log(err);
-    logger.error(err);
-    exitHandler();
+    logger.error(`Unhandled Rejection: ${err}`);
+    process.exit(1);
   });
 }
 

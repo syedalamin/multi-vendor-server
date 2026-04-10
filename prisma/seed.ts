@@ -1,70 +1,54 @@
-import { UserRole, Gender } from "@prisma/client";
+import { UserRole, Gender, Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "../src/utils/share/prisma";
-import ApiError from "../src/utils/share/apiError";
-import status from "http-status";
 
 const seedAdmin = async () => {
-  try {
-     
-    const isUserExist = await prisma.admin.findFirst({
-      where: {
+  const existingUser = await prisma.user.findUnique({
+    where: { email: "trustyshoptbd@gmail.com" },
+  });
+
+  if (existingUser) {
+    console.log("Admin already exists");
+    return;
+  }
+
+  const hashedPassword: string = await bcrypt.hash("trustyshoptbd@gmail.com", 12);
+
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const user = await tx.user.create({
+      data: {
         email: "trustyshoptbd@gmail.com",
+        password: hashedPassword,
+        role: UserRole.ADMIN,
       },
     });
 
-    if (isUserExist) {
-      throw new ApiError(status.CONFLICT, "User is already exists");
-    }
-
-    const hashedPassword: string = await bcrypt.hash(
-      "trustyshoptbd@gmail.com",
-      12,
-    );
-
-    const userData = {
-      email: "trustyshoptbd@gmail.com",
-      password: hashedPassword,
-      role: UserRole.ADMIN,
-    };
-
-    await prisma.$transaction(async (transactionClient) => {
-      const user = await transactionClient.user.create({
-        data: userData,
-      });
-      const createdAdminData = await transactionClient.admin.create({
-        data: {
-          firstName: "Syed",
-          lastName: "Alamin",
-          email: user.email,
-          contactNumber: "01315831065",
-          gender: Gender.MALE,
-          profilePhoto: "https://example.com/profile.jpg",
-          address: "Dhaka, Bangladesh",
-        },
-      });
-
-      return createdAdminData;
+    await tx.admin.create({
+      data: {
+        firstName: "Syed",
+        lastName: "Alamin",
+        email: user.email,
+        contactNumber: "01315831065",
+        gender: Gender.MALE,
+        profilePhoto: "https://example.com/profile.jpg",
+        address: "Dhaka, Bangladesh",
+      },
     });
-  } catch (err) {
-    //  throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create admin user");
-  } finally {
-    await prisma.$disconnect();
-  }
+  });
+
+  console.log("Admin seeded successfully");
 };
 
 const createHomePageImages = async () => {
-  try {
+  const existing = await prisma.homePageImages.findUnique({
+    where: { id: "home_page_single_entry" },
+  });
+
+  if (!existing) {
     await prisma.homePageImages.create({
-      data: {
-        id: "home_page_single_entry",
-      },
+      data: { id: "home_page_single_entry" },
     });
-  } catch (err) {
-    
-    // throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create home page images entry");
-  } finally {
-    await prisma.$disconnect();
+    console.log("Home page images entry created");
   }
 };
 

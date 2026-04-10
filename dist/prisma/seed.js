@@ -16,62 +16,46 @@ exports.seedDatabase = void 0;
 const client_1 = require("@prisma/client");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma_1 = __importDefault(require("../src/utils/share/prisma"));
-const apiError_1 = __importDefault(require("../src/utils/share/apiError"));
-const http_status_1 = __importDefault(require("http-status"));
 const seedAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const isUserExist = yield prisma_1.default.admin.findFirst({
-            where: {
+    const existingUser = yield prisma_1.default.user.findUnique({
+        where: { email: "trustyshoptbd@gmail.com" },
+    });
+    if (existingUser) {
+        console.log("Admin already exists");
+        return;
+    }
+    const hashedPassword = yield bcrypt_1.default.hash("trustyshoptbd@gmail.com", 12);
+    yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield tx.user.create({
+            data: {
                 email: "trustyshoptbd@gmail.com",
+                password: hashedPassword,
+                role: client_1.UserRole.ADMIN,
             },
         });
-        if (isUserExist) {
-            throw new apiError_1.default(http_status_1.default.CONFLICT, "User is already exists");
-        }
-        const hashedPassword = yield bcrypt_1.default.hash("trustyshoptbd@gmail.com", 12);
-        const userData = {
-            email: "trustyshoptbd@gmail.com",
-            password: hashedPassword,
-            role: client_1.UserRole.ADMIN,
-        };
-        yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-            const user = yield transactionClient.user.create({
-                data: userData,
-            });
-            const createdAdminData = yield transactionClient.admin.create({
-                data: {
-                    firstName: "Syed",
-                    lastName: "Alamin",
-                    email: user.email,
-                    contactNumber: "01315831065",
-                    gender: client_1.Gender.MALE,
-                    profilePhoto: "https://example.com/profile.jpg",
-                    address: "Dhaka, Bangladesh",
-                },
-            });
-            return createdAdminData;
-        }));
-    }
-    catch (err) {
-        //  throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create admin user");
-    }
-    finally {
-        yield prisma_1.default.$disconnect();
-    }
+        yield tx.admin.create({
+            data: {
+                firstName: "Syed",
+                lastName: "Alamin",
+                email: user.email,
+                contactNumber: "01315831065",
+                gender: client_1.Gender.MALE,
+                profilePhoto: "https://example.com/profile.jpg",
+                address: "Dhaka, Bangladesh",
+            },
+        });
+    }));
+    console.log("Admin seeded successfully");
 });
 const createHomePageImages = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
+    const existing = yield prisma_1.default.homePageImages.findUnique({
+        where: { id: "home_page_single_entry" },
+    });
+    if (!existing) {
         yield prisma_1.default.homePageImages.create({
-            data: {
-                id: "home_page_single_entry",
-            },
+            data: { id: "home_page_single_entry" },
         });
-    }
-    catch (err) {
-        // throw new ApiError(status.INTERNAL_SERVER_ERROR, "Failed to create home page images entry");
-    }
-    finally {
-        yield prisma_1.default.$disconnect();
+        console.log("Home page images entry created");
     }
 });
 exports.seedDatabase = {
