@@ -30,10 +30,13 @@ app.use(
       "https://trustyshoptbd.com",
       "http://localhost:3000",
       "http://192.168.0.102:3000",
+      "https://multi-vendor-five.vercel.app",
+      "https://multi-vendor-git-main-syedalamins-projects.vercel.app",
+      "https://multi-vendor-lha8bbw0r-syedalamins-projects.vercel.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  })
+  }),
 );
 
 //! parsers
